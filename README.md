@@ -2,8 +2,10 @@
 
 ## 構成
 
-- フロントエンド: React (TypeScript)
+- フロントエンド: Vite + React (TypeScript)
 - バックエンド: Java (Spring Boot)
+- データベース: MySQL
+- コンテナ管理: Docker / docker-compose
 
 ---
 
@@ -18,7 +20,7 @@
 
 #### セットアップ
 
-work/makeworld.batを実行するか、以下のコマンドでViteプロジェクトを作成してください。
+work/makeworld.bat または work/makeworld.sh を実行するか、以下のコマンドでViteプロジェクトを作成してください。
 
 ```bash
 # Vite + React + TypeScript プロジェクト作成
@@ -44,21 +46,29 @@ npm run dev
 
 #### 必要条件
 
-- JDK 17以上
-- Maven または Gradle
+- JDK 21以上
+- Maven
 
 #### セットアップ
 
-未記入
+1. [Spring Initializr](https://start.spring.io/)でプロジェクト作成  
+   - Dependencies: Spring Web, Spring Data JPA, MySQL Driver
+
+2. DB接続設定例（`application.properties`）
+
+```
+spring.datasource.url=jdbc:mysql://db:3306/appdb
+spring.datasource.username=appuser
+spring.datasource.password=apppass
+spring.jpa.hibernate.ddl-auto=update
+```
 
 #### サーバー起動
 
 ```bash
 ./mvnw spring-boot:run
 ```
-
 または
-
 ```bash
 ./gradlew bootRun
 ```
@@ -78,8 +88,8 @@ React画面にAPIのメッセージが表示されれば成功です。
 
 ### 前提
 
-- まず `npx create-react-app groundgolf-group-app --template typescript` でプロジェクトディレクトリを作成してください。
-- Java(Spring Boot)のプロジェクトも別ディレクトリで作成しておきます。
+- `front` ディレクトリにVite + React + TypeScriptプロジェクトを作成
+- `back` ディレクトリにSpring Bootプロジェクトを作成し、`target/app.jar` をビルドして配置
 
 ### 1. Docker & docker-compose インストール
 
@@ -89,77 +99,41 @@ React画面にAPIのメッセージが表示されれば成功です。
 
 ```
 groundgolf-group-app/
-├─ frontend/   # React(TypeScript)プロジェクト
-├─ backend/    # Java(Spring Boot)プロジェクト
+├─ front/      # Vite + React(TypeScript)プロジェクト
+├─ back/       # Java(Spring Boot)プロジェクト
 ├─ docker-compose.yml
-└─ README.md
+├─ README.md
+└─ work/　　　　#環境構築用
+    ├─ makeworld.bat
+    └─ makeworld.sh
 ```
 
-### 3. docker-compose.yml例
-
-```yaml
-version: '3'
-services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    depends_on:
-      - backend
-
-  backend:
-    build: ./backend
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-```
-
-### 4. React用Dockerfile例（frontend/Dockerfile）
-
-```dockerfile
-FROM node:18
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-CMD ["npm", "start"]
-```
-
-### 5. Spring Boot用Dockerfile例（backend/Dockerfile）
-
-```dockerfile
-FROM eclipse-temurin:21-jdk
-WORKDIR /app
-COPY target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-### 6. 起動方法
+### 3. Docker環境の起動方法
 
 ```bash
 docker-compose up --build
 ```
 
+- 接続方法
+- front: http://localhost:5173  
+- back: http://localhost:8080  
+- db: MySQL (localhost:3306)
+
 ---
 
-## ディレクトリ構成例
+### 4. Dockerコマンド集
 
-```
-groundgolf-group-app/
-├─ src/
-│  └─ App.tsx
-├─ README.md
-└─ ...その他ファイル
+```bash
+docker-compose up --build
+docker ps -a
+docker exec -it groundgolf-group-app-front-1 bash
+docker exec -it groundgolf-group-app-back-1 bash
+docker exec -it groundgolf-group-app-db-1 bash
 ```
 
 ## 補足
 
-- まずローカルでReact/Javaのプロジェクトを作成し、動作確認後にDocker化する流れが推奨です。
-- `frontend`/`backend`ディレクトリにそれぞれのプロジェクトを配置してください。
-- 詳細なDockerfileやdocker-composeのカスタマイズはプロジェクト構成に応じて調整してください。
+- ローカルでReact/Javaのプロジェクトを作成し、動作確認後にDocker化する流れが推奨です。
+- `front`/`back` ディレクトリにそれぞれのプロジェクトを配置してください。
+- DB接続情報やDockerfileはプロジェクト構成に応じて調整してください。
+- Windowsは `work/makeworld.bat`、Linux/Macは `work/makeworld.sh` で初期セットアップ可能です。

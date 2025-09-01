@@ -64,4 +64,30 @@ docker exec -it groundgolf-group-app-db-1 bash
 
 ---
 
+## AI と会話したいときに使って
+
+・全体像
+フロントエンド: Vite + React + TypeScript + React Router
+バックエンド: Spring Boot (Java 21) + REST API
+DB: MySQL
+インフラ:
+開発 → Docker Compose（front / back / db）
+本番 → ECS (Fargate) / RDS / S3 + CloudFront
+
+・アーキテクチャ
+クリーンアーキテクチャを意識した分離（domain / usecase / adapter / infrastructure）
+Spring Boot + JPA で DB アクセスを抽象化
+React は開発中 npm run dev、本番は S3 配信
+REST API を Controller → UseCase → Repository → DB という流れで実行
+
+・運用/デプロイ
+GitHub リポジトリにフロントセット済み（front/）
+今後 back/ に Spring Boot プロジェクト作成予定
+Docker Compose で front / back / db をまとめて起動
+デザインは Figma
+本番デプロイ先は
+back → ECS(Fargate)
+front → S3 + CloudFront
+DB → RDS
+
 ## 補足

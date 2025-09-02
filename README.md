@@ -11,7 +11,7 @@
 
 ## ディレクトリ構成
 
-```
+```text
 groundgolfgroupapp/
 ├─ front/      # Vite + React(TypeScript)プロジェクト
 ├─ back/       # Java(Spring Boot)プロジェクト
@@ -25,14 +25,14 @@ groundgolfgroupapp/
 
 2. [Java21](https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.msi) をインストール
 
-3. jar 作成
+3. コンパイル
 
 ```bash
 cd back/
 ./mvnw clean package -DskipTests
 ```
 
-## Docker 環境の起動方法
+## コンテナ起動方法
 
 ```bash
 docker-compose up --build

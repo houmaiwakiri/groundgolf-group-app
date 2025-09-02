@@ -12,7 +12,7 @@
 ## ディレクトリ構成
 
 ```
-groundgolf-group-app/
+groundgolfgroupapp/
 ├─ front/      # Vite + React(TypeScript)プロジェクト
 ├─ back/       # Java(Spring Boot)プロジェクト
 ├─ docker-compose.yml
@@ -50,9 +50,9 @@ docker-compose up --build
 ```bash
 docker-compose up --build
 docker ps -a
-docker exec -it groundgolf-group-app-front-1 bash
-docker exec -it groundgolf-group-app-back-1 bash
-docker exec -it groundgolf-group-app-db-1 bash
+docker exec -it groundgolfgroupapp-front-1 bash
+docker exec -it groundgolfgroupapp-back-1 bash
+docker exec -it groundgolfgroupapp-db-1 bash
 ```
 
 ## 動作確認
@@ -72,10 +72,16 @@ docker exec -it groundgolf-group-app-db-1 bash
 DB: MySQL
 インフラ:
 開発 → Docker Compose（front / back / db）
-本番 → ECS (Fargate) / RDS / S3 + CloudFront
+本番 → ECS (Fargate) / RDS(EC2) / S3 + CloudFront
 
 ・アーキテクチャ
-クリーンアーキテクチャを意識した分離（domain / usecase / adapter / infrastructure）
+クリーンアーキテクチャを意識した分離
+
+- domain : エンティティ / 値オブジェクト / リポジトリIF
+- application : ユースケース / サービス層
+- infrastructure : DB実装 (Spring Data JPA) / 外部サービス連携
+- presentation : REST Controller
+
 Spring Boot + JPA で DB アクセスを抽象化
 React は開発中 npm run dev、本番は S3 配信
 REST API を Controller → UseCase → Repository → DB という流れで実行
@@ -88,6 +94,20 @@ Docker Compose で front / back / db をまとめて起動
 本番デプロイ先は
 back → ECS(Fargate)
 front → S3 + CloudFront
-DB → RDS
+DB → RDS(EC2)
+
+## TEST実行
+
+- データ登録
+
+```bash
+Invoke-RestMethod -Uri http://localhost:8080/scores -Method Post -Body (@(3,4,5,2,3,4,3,4,2,3) | ConvertTo-Json -Compress) -ContentType "application/json"
+```
+
+- データ確認
+
+```bash
+Invoke-RestMethod -Uri http://localhost:8080/scores -Method Get | ConvertTo-Json
+```
 
 ## 補足

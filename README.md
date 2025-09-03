@@ -64,6 +64,20 @@ docker exec -it groundgolfgroupapp-db-1 bash
 
 ---
 
+## TEST 実行
+
+- データ登録
+
+```bash
+Invoke-RestMethod -Uri http://localhost:8080/scores -Method Post -Body (@(3,4,5,2,3,4,3,4,2,3) | ConvertTo-Json -Compress) -ContentType "application/json"
+```
+
+- データ確認
+
+```bash
+Invoke-RestMethod -Uri http://localhost:8080/scores -Method Get | ConvertTo-Json
+```
+
 ## AI と会話したいときに使って
 
 ・全体像
@@ -77,9 +91,9 @@ DB: MySQL
 ・アーキテクチャ
 クリーンアーキテクチャを意識した分離
 
-- domain : エンティティ / 値オブジェクト / リポジトリIF
+- domain : エンティティ / 値オブジェクト / リポジトリ IF
 - application : ユースケース / サービス層
-- infrastructure : DB実装 (Spring Data JPA) / 外部サービス連携
+- infrastructure : DB 実装 (Spring Data JPA) / 外部サービス連携
 - presentation : REST Controller
 
 Spring Boot + JPA で DB アクセスを抽象化
@@ -95,19 +109,5 @@ Docker Compose で front / back / db をまとめて起動
 back → ECS(Fargate)
 front → S3 + CloudFront
 DB → RDS(EC2)
-
-## TEST実行
-
-- データ登録
-
-```bash
-Invoke-RestMethod -Uri http://localhost:8080/scores -Method Post -Body (@(3,4,5,2,3,4,3,4,2,3) | ConvertTo-Json -Compress) -ContentType "application/json"
-```
-
-- データ確認
-
-```bash
-Invoke-RestMethod -Uri http://localhost:8080/scores -Method Get | ConvertTo-Json
-```
 
 ## 補足

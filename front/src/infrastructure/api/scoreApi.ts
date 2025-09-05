@@ -16,6 +16,7 @@ export const scoreApi = {
 
   async postScore(strokes: number[]): Promise<Score> {
     const res = await api.post<Score>("/scores", strokes);
+    console.log("送信データ:", JSON.stringify(strokes));
     return res.data;
   }
 };

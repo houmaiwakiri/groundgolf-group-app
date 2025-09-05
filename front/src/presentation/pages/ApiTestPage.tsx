@@ -30,7 +30,7 @@ export default function ApiTestPage() {
         .map((s) => parseInt(s.trim(), 10));
       await scoreUseCase.registerScore(strokes);
       setStrokesInput("");
-      fetchScores(); // 登録後に一覧更新
+      fetchScores();
     } catch (e) {
       setError("登録に失敗しました : " + e);
     } finally {
@@ -67,9 +67,9 @@ export default function ApiTestPage() {
 
       {/* 一覧表示 */}
       <ul>
-        {scores.map((s) => (
-          <li key={s.id}>
-            ID: {s.id}, Strokes: {s.strokes.join(", ")}
+        {scores.map((strokes, index) => (
+          <li key={index}>
+            ID: {index + 1}, Strokes: {strokes.join(", ")}
           </li>
         ))}
       </ul>

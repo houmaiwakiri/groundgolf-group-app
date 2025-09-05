@@ -1,4 +1,1 @@
-export interface Score {
-  id: number;
-  strokes: number[];
-}
+export type Score = number[];

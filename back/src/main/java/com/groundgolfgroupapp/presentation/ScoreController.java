@@ -25,6 +25,7 @@ public class ScoreController {
     // POST /scores
     @PostMapping
     public Score register(@RequestBody List<Integer> strokes) {
+        System.out.println("受け取った値: " + strokes);
         return service.registerScore(strokes);
     }
 

@@ -1,69 +1,42 @@
-# React + TypeScript + Vite
+# front(TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 構成
 
-Currently, two official plugins are available:
+presentation ： ユーザー操作・画面表示（React コンポーネント）  
+application ： ユースケース（画面が何をしたいかを表すロジック）  
+infrastructure ： 外部とのやり取り（API クライアント等）  
+domain ： 型定義・ドメインモデル（アプリ内で共通に使う型）
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 構成詳細(クリーンアーキテクチャ)
 
-## Expanding the ESLint configuration
+### presentation（UI）
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 画面レイアウト、入力フォーム、ボタン、表示状態（loading/error）を担当
+- ユーザー操作を受けて **application のユースケース関数** を呼ぶ
+- 生データの整形（必要最小限）やユーザー向けのエラーメッセージ表示はここで行う
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### application（UseCase）
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- 画面の「やりたいこと（ユースケース）」を実装する層
+- 例: `registerScore(strokes: number[]): Promise<Score>` や `loadScores(): Promise<Score[]>`
+- **infrastructure（API）に依存するが、直接 axios を使わず抽象インターフェースを通す（依存逆転）**
+- 成功/失敗を **presentation に返す**（Promise/Result オブジェクト等）
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### infrastructure（API クライアント）
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- 実際に HTTP を叩く実装（axios インスタンスをここに持つ）
+- API のエンポイントやシリアライズ（必要なら request/response の変換）を担当
+- application に対しては「関数（インターフェース）」で提供する
+  - 例: `postScores(strokes)` / `getScores()`
+
+---
+
+### domain（モデル／型）
+
+- アプリ内で共通して使う型を定義する（TypeScript の `interface` / `type`）
+- 例: `Score` 型、`Result<T>` のユーティリティ型など
+- ビジネスルールがある場合はここで表現（小さな Value Object など）

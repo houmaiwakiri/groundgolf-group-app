@@ -19,6 +19,9 @@ public class Score {
 
     // コンストラクタで List<Integer> を受け取り文字列に変換
     public Score(List<Integer> strokesList) {
+        if (strokesList.contains(null)) {
+            throw new IllegalArgumentException("strokesList に null が含まれています");
+        }
         this.strokes = strokesList.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
@@ -31,9 +34,10 @@ public class Score {
     // DBに保存した文字列を List<Integer> に戻す
     public List<Integer> getStrokesAsList() {
         if (strokes == null || strokes.isEmpty()) {
-            return List.of(); // 空リストを返す
+            return List.of();
         }
         return Arrays.stream(strokes.split(","))
+                .filter(s -> !"null".equals(s))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }

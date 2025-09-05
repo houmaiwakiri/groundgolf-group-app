@@ -6,7 +6,7 @@ export const scoreUseCase = {
     try {
       return await scoreApi.getScores();
     } catch (e) {
-      console.error("Failed to load scores", e);
+      console.error("スコア読み込み失敗", e);
       throw e;
     }
   },
@@ -15,7 +15,7 @@ export const scoreUseCase = {
     try {
       return await scoreApi.postScore(strokes);
     } catch (e) {
-      console.error("Failed to register score", e);
+      console.error("スコア登録失敗", e);
       throw e;
     }
   },

@@ -93,7 +93,8 @@ DB: MySQL
 
 - domain : エンティティ / 値オブジェクト / リポジトリ IF
 - application : ユースケース / サービス層
-- infrastructure : DB 実装 (Spring Data JPA) / 外部サービス連携
+- infrastructure : 外部依存をまとめる場所  
+  => DB 実装 (Spring Data JPA) / API 連携
 - presentation : REST Controller
 
 Spring Boot + JPA で DB アクセスを抽象化
@@ -111,3 +112,5 @@ front → S3 + CloudFront
 DB → RDS(EC2)
 
 ## 補足
+
+- domain ルール（例: スコア計算やバリデーション）

@@ -2,8 +2,6 @@
 export const API_BASE_URL =
   import.meta.env.VITE_BASE_URL || "http://localhost:8080";
 
-// なぜ二行も書いている？
-
 // 基本headers
 export const DEFAULT_HEADERS = {
   "Content-Type": "application/json",

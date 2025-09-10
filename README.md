@@ -13,7 +13,7 @@
 
 ```text
 groundgolfgroupapp/
-├─ front/      # Vite + React(TypeScript)プロジェクト
+├─ front-web/      # Vite + React(TypeScript)プロジェクト
 ├─ back/       # Java(Spring Boot)プロジェクト
 ├─ docker-compose.yml
 ├─ README.md
@@ -39,7 +39,7 @@ docker-compose up --build
 ```
 
 - 接続方法
-- front: http://localhost:5173
+- front-web: http://localhost:5173
 - back: http://localhost:8080
 - db: MySQL (localhost:3306)
 
@@ -50,7 +50,7 @@ docker-compose up --build
 ```bash
 docker-compose up --build
 docker ps -a
-docker exec -it groundgolfgroupapp-front-1 bash
+docker exec -it groundgolfgroupapp-front-web-1 bash
 docker exec -it groundgolfgroupapp-back-1 bash
 docker exec -it groundgolfgroupapp-db-1 bash
 ```
@@ -85,7 +85,7 @@ Invoke-RestMethod -Uri http://localhost:8080/scores -Method Get | ConvertTo-Json
 バックエンド: Spring Boot (Java 21) + REST API
 DB: MySQL
 インフラ:
-開発 → Docker Compose（front / back / db）
+開発 → Docker Compose（front-web / back / db）
 本番 → ECS (Fargate) / RDS(EC2) / S3 + CloudFront
 
 ・アーキテクチャ
@@ -102,9 +102,9 @@ React は開発中 npm run dev、本番は S3 配信
 REST API を Controller → UseCase → Repository → DB という流れで実行
 
 ・運用/デプロイ
-GitHub リポジトリにフロントセット済み（front/）
+GitHub リポジトリにフロントセット済み（front-web/）
 今後 back/ に Spring Boot プロジェクト作成予定
-Docker Compose で front / back / db をまとめて起動
+Docker Compose で front-web / back / db をまとめて起動
 デザインは Figma
 本番デプロイ先は
 back → ECS(Fargate)

@@ -1,0 +1,11 @@
+# Docker Ignore File
+node_modules
+npm-debug.log
+dist
+
+# ドキュメント
+*.md
+
+# システムファイル
+.DS_Store
+.vscode

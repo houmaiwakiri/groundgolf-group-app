@@ -13,9 +13,11 @@
 
 ```text
 groundgolfgroupapp/
-├─ front-web/      # Vite + React(TypeScript)プロジェクト
-├─ back/       # Java(Spring Boot)プロジェクト
+├─ front-web/      # Vite + React(TypeScript) (ブラウザ)
+├─ front-app/      # React Native (アプリ、予定)
+├─ back/           # Java(Spring Boot)
 ├─ docker-compose.yml
+├─ CODING_RULES.md
 ├─ README.md
 ```
 

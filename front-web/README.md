@@ -1,4 +1,4 @@
-# front(TypeScript)
+# front-web(TypeScript)
 
 ## 構成
 

@@ -1,11 +1,11 @@
 version: '3.8'
 services:
-  front:
-    build: ./front
+  front-web:
+    build: ./front-web
     ports:
       - "5173:5173"
     volumes:
-      - ./front:/app
+      - ./front-web:/app
       - node_modules:/app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true

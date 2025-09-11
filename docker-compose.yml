@@ -23,7 +23,7 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-    command: npx expo start --web --port 19006
+    command: npx expo start --tunnel --port 19006
 
   back:
     build: ./back

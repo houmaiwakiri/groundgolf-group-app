@@ -15,7 +15,7 @@
 groundgolfgroupapp/
 ├─ front-web/       # Vite + React (ブラウザ)
 ├─ front-app/       # React Native (アプリ)
-│   ├─ app/         # 画面（Expo Router利用時）
+│   ├─ app/         # 画面（Expo Router用ルーティング）
 │   ├─ src/
 │   │   ├─ domain/         # 型定義 (Score, Token など)
 │   │   ├─ application/    # ユースケース
@@ -88,6 +88,13 @@ npm run start
 
 ## 補足
 
+- 下記コマンドで出力されるQRコードをスマホで読み込み、expo goアプリで動作確認
+
+```bash
+npx expo start --tunnel
+```
+
+npx expo start --tunnel
 - Web と App で共通化できるロジックは `domain` / `application` / `infrastructure` に配置
 - ネイティブ機能を利用する場合は `SecureStore` などをインフラ層に実装
 - Expo Web はあくまで開発補助用（本番ブラウザは front-web が担当）

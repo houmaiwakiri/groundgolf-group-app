@@ -13,6 +13,7 @@ COPY . .
 
 # Expo CLI をグローバルインストール
 RUN npm install -g expo-cli
+RUN npm install -g @expo/ngrok
 
 # 開発用コマンド（Webモードで起動）
 # CMD ["npm", "run", "web"]

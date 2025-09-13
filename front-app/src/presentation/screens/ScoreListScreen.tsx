@@ -1,9 +1,9 @@
 import { View, Text } from "react-native";
 
-export default function HomeScreen() {
+export default function ScoreListScreen() {
   return (
     <View>
-      <Text>ホーム</Text>
+      <Text>スコア一覧</Text>
     </View>
   );
 }

@@ -1,9 +1,9 @@
 import { View, Text } from "react-native";
 
-export default function HomeScreen() {
+export default function OtherScreen() {
   return (
     <View>
-      <Text>ホーム</Text>
+      <Text>その他</Text>
     </View>
   );
 }

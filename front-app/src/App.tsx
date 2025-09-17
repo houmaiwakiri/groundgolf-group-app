@@ -1,3 +1,6 @@
+// src/App.tsx
+// 本番用のルーティングを定義（React Navigation）
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -5,7 +8,7 @@ import HomeScreen from "./presentation/screens/HomeScreen";
 import ScoreRegisterScreen from "./presentation/screens/ScoreRegisterScreen";
 import ScoreListScreen from "./presentation/screens/ScoreListScreen";
 import TeamScreen from "./presentation/screens/TeamScreen";
-import OtherScreen from "./presentation/screens/Otherscreen";
+import OtherScreen from "./presentation/screens/OtherScreen";
 
 const Tab = createBottomTabNavigator();
 

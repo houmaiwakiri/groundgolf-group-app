@@ -6,7 +6,6 @@ services:
       - "19006:19006" # Expo Web
     volumes:
       - ./front:/app
-      - /app/node_modules
     environment:
       - NODE_ENV=development
     command: npx expo start --tunnel --port 19006

@@ -11,7 +11,7 @@ export default function Layout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: "ホーム",
           tabBarIcon: ({ color, size }) => (
@@ -20,7 +20,7 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="scores"
+        name="scoreRegister"
         options={{
           title: "スコア登録",
           tabBarIcon: ({ color, size }) => (
@@ -29,7 +29,7 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="score-list"
+        name="scoreList"
         options={{
           title: "スコア一覧",
           tabBarIcon: ({ color, size }) => (

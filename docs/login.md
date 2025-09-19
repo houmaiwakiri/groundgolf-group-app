@@ -1,8 +1,14 @@
-# 認証・API 連携
+# 認証
 
-* AWS Cognito Hosted UI を利用（認可コードフロー）
-* Expo の `Linking` API で Hosted UI にリダイレクト
-* コールバックを受け取り → トークン取得
-* トークンは **SecureStore (iOS/Android)** または **localStorage/Web** に保持
-* API 呼び出しは `lib/axiosClient.ts` を利用
-* 
+1. ログイン画面で「ログイン」ボタンを押す
+→ Cognito Hosted UI（AWSのログインページ）へリダイレクト
+
+2. ユーザーが認証すると callback URI にリダイレクトされる（<http://localhost:19006/callback）>
+
+3. アプリで 認可コード を受け取る
+
+4. 認可コードを使って トークン（access_token / id_token / refresh_token） を取得
+
+5. トークンを SecureStore（iOS/Android） or localStorage（Web） に保存
+
+6. API 呼び出し時に Authorization: Bearer <access_token> を付与

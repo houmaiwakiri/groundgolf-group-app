@@ -34,3 +34,8 @@ export async function exchangeCodeForToken(code: string, extra: ExpoExtra) {
   const tokens = res.data;
 
   await SecureStore.setItemAsync("access_token", tokens.access_token);
+  await SecureStore.setItemAsync("id_token", tokens.id_token);
+  await SecureStore.setItemAsync("refresh_token", tokens.refresh_token);
+
+  return tokens;
+}

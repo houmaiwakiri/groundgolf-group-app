@@ -1,29 +1,70 @@
-import { Button, View } from "react-native";
-import * as Linking from "expo-linking";
-import Constants from "expo-constants";
+import React, { useState, useEffect } from 'react';
+import { Button, Text, View, StyleSheet } from 'react-native';
+import * as AuthSession from 'expo-auth-session';
+import Constants from 'expo-constants';
 
 type ExpoExtra = {
   cognitoClientId: string;
   cognitoDomain: string;
-  cognitoRedirectUri: string;
-  cognitoResponseType: string;
-  cognitoScope: string;
+  cognitoScope?: string;
+  cognitoResponseType?: string;
 };
 
-export default function LoginScreen() {
+export default function LoginButton() {
   const extra = Constants.expoConfig?.extra as ExpoExtra;
+  const scope = extra.cognitoScope?.split(' ') ?? ['openid', 'profile', 'email'];
+  const responseType = extra.cognitoResponseType ?? 'code';
 
-  const loginUrl = `https://${extra.cognitoDomain}/login?client_id=${extra.cognitoClientId}&response_type=${extra.cognitoResponseType}&scope=${extra.cognitoScope}&redirect_uri=${encodeURIComponent(
-    extra.cognitoRedirectUri
-  )}`;
+  const [message, setMessage] = useState<string>('');
 
-  const handleLogin = () => {
-    Linking.openURL(loginUrl);
-  };
+  // リダイレクトURI（Expo Go / 本番両対応）
+  const redirectUri = AuthSession.makeRedirectUri({ scheme: 'front' });
+
+  // 認証リクエストを作成
+  const [request, result, promptAsync] = AuthSession.useAuthRequest(
+    {
+      clientId: extra.cognitoClientId,
+      redirectUri,
+      responseType: responseType,
+      scopes: scope,
+      extraParams: { identity_provider: '' }, // 必要に応じて指定
+    },
+    {
+      authorizationEndpoint: `https://${extra.cognitoDomain}/login`,
+      tokenEndpoint: `https://${extra.cognitoDomain}/oauth2/token`, // PKCEで使用する場合
+    }
+  );
+
+  // 認証結果を監視
+  useEffect(() => {
+    if (result) {
+      if (result.type === 'success' && result.params?.code) {
+        setMessage(`Auth code: ${result.params.code}`);
+      } else if (result.type === 'dismiss') {
+        setMessage('Login dismissed');
+      } else {
+        setMessage(`Login failed: ${JSON.stringify(result)}`);
+      }
+    }
+  }, [result]);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Button title="ログイン" onPress={handleLogin} />
+    <View style={styles.container}>
+      <Button
+        title="Login with Cognito"
+        disabled={!request}
+        onPress={() => {
+          promptAsync({ useProxy: true }).catch((err) =>
+            setMessage(`Error: ${err.message}`)
+          );
+        }}
+      />
+      {message !== '' && <Text style={styles.message}>{message}</Text>}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { padding: 20 },
+  message: { marginTop: 20, color: 'red' },
+});

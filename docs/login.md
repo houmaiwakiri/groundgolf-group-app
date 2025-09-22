@@ -1,14 +1,9 @@
 # 認証
 
-1. ログイン画面で「ログイン」ボタンを押す
-→ Cognito Hosted UI（AWSのログインページ）へリダイレクト
+1. ユーザーが Hosted UI でログイン
 
-2. ユーザーが認証すると callback URI にリダイレクトされる（<http://localhost:19006/callback）>
+2. Cognito がこの Expo プロキシ URL にリダイレクト
 
-3. アプリで 認可コード を受け取る
+3. Expo サーバー（auth.expo.io）が、再度 カスタムスキーム front://callback に変換してアプリに戻す
 
-4. 認可コードを使って トークン（access_token / id_token / refresh_token） を取得
-
-5. トークンを SecureStore（iOS/Android） or localStorage（Web） に保存
-
-6. API 呼び出し時に Authorization: Bearer <access_token> を付与
+4. アプリ側で AuthSession.openAuthSessionAsync がそのリダイレクトを受け取り、?code=xxx が取得できる

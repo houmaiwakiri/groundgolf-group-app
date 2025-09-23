@@ -27,11 +27,11 @@ export default function LoginButton() {
       redirectUri,
       responseType: responseType,
       scopes: scope,
-      extraParams: { identity_provider: '' }, // 必要に応じて指定
+      extraParams: { identity_provider: '' },
     },
     {
       authorizationEndpoint: `https://${extra.cognitoDomain}/login`,
-      tokenEndpoint: `https://${extra.cognitoDomain}/oauth2/token`, // PKCEで使用する場合
+      tokenEndpoint: `https://${extra.cognitoDomain}/oauth2/token`,
     }
   );
 

@@ -1,64 +1,26 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+// Rootレイアウト
+// 認証状態によって(auth)と(tabs)を切り替える
+import { Stack } from "expo-router";
 
-export default function Layout() {
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: true,
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "gray",
-      }}
-    >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: "ホーム",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="scoreRegister"
-        options={{
-          title: "スコア登録",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="create" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="scoreList"
-        options={{
-          title: "スコア一覧",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="list" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="team"
-        options={{
-          title: "チーム",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="other"
-        options={{
-          title: "その他",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="ellipsis-horizontal"
-              color={color}
-              size={size}
-            />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+import { AuthProvider } from "../src/libs/auth";
+// 認証状態を管理するhook
+// hookとは、状態管理や副作用を関数として切り出して再利用するためのもの
+import { useAuth } from "../src/libs/auth";
+
+
+export default function RootLayout() {
+
+    const { isAuth } = useAuth();
+
+    return (
+        <AuthProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+                {isAuth ? (
+                    <Stack.Screen name="(tabs)" />
+                ) : (
+                    <Stack.Screen name="(auth)" />
+                )}
+            </Stack>
+        </AuthProvider>
+    );
 }

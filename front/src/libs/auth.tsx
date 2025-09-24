@@ -1,41 +1,70 @@
-import axios from "axios";
+// src/libs/auth.ts
+import React, { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 
-type ExpoExtra = {
-  cognitoClientId: string;
-  cognitoDomain: string;
-  cognitoRedirectUri: string;
-  cognitoResponseType: string;
-  cognitoScope: string;
+type Tokens = {
+    access_token: string;
+    id_token: string;
+    refresh_token?: string;
 };
 
-type CognitoTokens = {
-  access_token: string;
-  id_token: string;
-  refresh_token: string;
-  expires_in?: number;
-  token_type?: string;
+type AuthContextType = {
+    isAuth: boolean;
+    tokens: Tokens | null;
+    login: (tokens: Tokens) => Promise<void>;
+    logout: () => Promise<void>;
 };
 
-export async function exchangeCodeForToken(code: string, extra: ExpoExtra) {
-  const url = `https://${extra.cognitoDomain}/oauth2/token`;
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-  const data = new URLSearchParams({
-    grant_type: "authorization_code",
-    client_id: extra.cognitoClientId,
-    code,
-    redirect_uri: extra.cognitoRedirectUri,
-  });
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [tokens, setTokens] = useState<Tokens | null>(null);
 
-  const res = await axios.post<CognitoTokens>(url, data.toString(), {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  });
+    // 起動時に SecureStore からトークンを復元
+    useEffect(() => {
+        (async () => {
+            const access = await SecureStore.getItemAsync("access_token");
+            const id = await SecureStore.getItemAsync("id_token");
+            const refresh = await SecureStore.getItemAsync("refresh_token");
 
-  const tokens = res.data;
+            if (access && id) {
+                setTokens({ access_token: access, id_token: id, refresh_token: refresh || undefined });
+            }
+        })();
+    }, []);
 
-  await SecureStore.setItemAsync("access_token", tokens.access_token);
-  await SecureStore.setItemAsync("id_token", tokens.id_token);
-  await SecureStore.setItemAsync("refresh_token", tokens.refresh_token);
+    const login = async (newTokens: Tokens) => {
+        await SecureStore.setItemAsync("access_token", newTokens.access_token);
+        await SecureStore.setItemAsync("id_token", newTokens.id_token);
+        if (newTokens.refresh_token) {
+            await SecureStore.setItemAsync("refresh_token", newTokens.refresh_token);
+        }
+        setTokens(newTokens);
+    };
 
-  return tokens;
+    const logout = async () => {
+        await SecureStore.deleteItemAsync("access_token");
+        await SecureStore.deleteItemAsync("id_token");
+        await SecureStore.deleteItemAsync("refresh_token");
+        setTokens(null);
+    };
+
+    return (
+        <AuthContext.Provider
+            value={{
+                isAuth: !!tokens,
+                tokens,
+                login,
+                logout,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export function useAuth() {
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+    return ctx;
 }

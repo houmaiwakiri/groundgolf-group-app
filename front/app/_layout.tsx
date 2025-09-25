@@ -7,20 +7,28 @@ import { AuthProvider } from "../src/libs/auth";
 // hookとは、状態管理や副作用を関数として切り出して再利用するためのもの
 import { useAuth } from "../src/libs/auth";
 
-
-export default function RootLayout() {
-
-    const { isAuth } = useAuth();
+// 通常の関数定義
+function RootNavigator() {
+    const { isAuthenticated } = useAuth();
 
     return (
+        <Stack screenOptions={{ headerShown: false }}>
+            {isAuthenticated ? (
+                // 認証済の場合
+                <Stack.Screen name="(tabs)" />
+            ) : (
+                // 未認証の場合
+                <Stack.Screen name="(auth)/login" />
+            )}
+        </Stack>
+    );
+}
+
+// 外部で使用できる
+export default function RootLayout() {
+    return (
         <AuthProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-                {isAuth ? (
-                    <Stack.Screen name="(tabs)" />
-                ) : (
-                    <Stack.Screen name="(auth)" />
-                )}
-            </Stack>
+            <RootNavigator />
         </AuthProvider>
     );
 }

@@ -16,7 +16,7 @@ groundgolfgroupapp/
 ├─ front/          # React Native (Expo アプリ)
 │   ├─ app/        # 画面（Expo Router が自動ルーティング）
 │   │   ├─ _layout.tsx    # 下部タブメニュー
-│   │   ├─ index.tsx      # ホーム
+│   │   ├─ home.tsx      # ホーム
 │   │   ├─ scores.tsx     # スコア登録
 │   │   ├─ score-list.tsx # スコア一覧
 │   │   ├─ team.tsx       # チーム

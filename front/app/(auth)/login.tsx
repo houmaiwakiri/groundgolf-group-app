@@ -3,9 +3,12 @@ import { Button, Text, View, StyleSheet } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import Constants from 'expo-constants';
 
+// 型定義
 type ExpoExtra = {
+    // 必須
     cognitoClientId: string;
     cognitoDomain: string;
+    // 任意
     cognitoScope?: string;
     cognitoResponseType?: string;
 };

@@ -9,7 +9,7 @@ type Tokens = {
 };
 
 type AuthContextType = {
-    isAuth: boolean;
+    isAuthenticated: boolean;
     tokens: Tokens | null;
     login: (tokens: Tokens) => Promise<void>;
     logout: () => Promise<void>;
@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (
         <AuthContext.Provider
             value={{
-                isAuth: !!tokens,
+                isAuthenticated: !!tokens,
                 tokens,
                 login,
                 logout,

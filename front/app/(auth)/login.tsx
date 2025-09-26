@@ -30,7 +30,6 @@ export default function LoginButton() {
             redirectUri,
             responseType: responseType,
             scopes: scope,
-            extraParams: { identity_provider: '' },
         },
         {
             authorizationEndpoint: `https://${extra.cognitoDomain}/login`,

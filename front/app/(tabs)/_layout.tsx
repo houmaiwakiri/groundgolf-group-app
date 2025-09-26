@@ -11,7 +11,7 @@ export default function Layout() {
       }}
     >
       <Tabs.Screen
-        name="home"
+        name="index"
         options={{
           title: "ホーム",
           tabBarIcon: ({ color, size }) => (

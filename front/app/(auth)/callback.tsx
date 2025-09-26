@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import Constants from "expo-constants";
+
 import { exchangeCodeForToken } from "../../src/libs/token";
 import { useAuth } from "../../src/libs/auth";
 import LoadingIndicator from "../../src/components/LoadingIndicator";
-import Constants from "expo-constants";
 
 type ExpoExtra = {
     cognitoClientId: string;

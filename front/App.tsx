@@ -1,4 +1,3 @@
-// App.tsx
 import { AuthProvider } from "./src/libs/auth";
 import { Slot } from "expo-router";
 

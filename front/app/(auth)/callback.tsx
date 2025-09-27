@@ -24,7 +24,7 @@ export default function Callback() {
                 try {
                     const tokens = await exchangeCodeForToken(code, extra);
                     await login(tokens);
-                    router.replace("/home");
+                    router.replace("/(auth)/login");
                 } catch (e) {
                     console.error("ログイン失敗:", e);
                 }

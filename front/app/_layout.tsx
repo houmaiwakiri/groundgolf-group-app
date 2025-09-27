@@ -1,30 +1,59 @@
-// Rootレイアウト
-// 認証状態によって(auth)と(tabs)を切り替える
+
 import { Stack } from "expo-router";
+import { AuthProvider, useAuth } from "../src/libs/auth";
+import LoadingIndicator from "../src/components/LoadingIndicator";
+import { Text, View } from "react-native";
 
-import { AuthProvider } from "../src/libs/auth";
-// 認証状態を管理するhook
-// hookとは、状態管理や副作用を関数として切り出して再利用するためのもの
-import { useAuth } from "../src/libs/auth";
-
-// 通常の関数定義
 function RootNavigator() {
-    const { isAuthenticated } = useAuth();
+    const { tokens, loading } = useAuth();
+
+    const forceLogout = true; // 開発用
+    const isAuthenticated = forceLogout ? false : !!tokens;
+
+    if (loading) {
+        // トークン読込中はローディング表示
+        return <LoadingIndicator />;
+    }
 
     return (
-        <Stack screenOptions={{ headerShown: false }}>
-            {isAuthenticated ? (
-                // 認証済の場合
-                <Stack.Screen name="(tabs)" />
-            ) : (
-                // 未認証の場合
-                <Stack.Screen name="(auth)/login" />
-            )}
-        </Stack>
+        <View style={{ flex: 1 }}>
+            {/* <Stack screenOptions={{ headerShown: false }}>
+                {isAuthenticated ? (
+                    <Stack.Screen name="(tabs)" />
+                ) : (
+                    <Stack.Screen name="(auth)/login" />
+                )}
+            </Stack> */}
+            <Stack>
+                <Stack.Protected guard={isAuthenticated}>
+                    <Stack.Screen name="(tabs)" />
+                </Stack.Protected>
+
+                <Stack.Protected guard={!isAuthenticated}>
+                    <Stack.Screen name="(auth)" />
+                </Stack.Protected>
+            </Stack>
+
+
+            {/* デバッグ表示 */}
+            <View
+                style={{
+                    position: "absolute",
+                    top: "40%",
+                    left: 0,
+                    right: 0,
+                    alignItems: "center",
+                    padding: 16,
+                }}
+                pointerEvents="none"
+            >
+                <Text>isAuthenticated: {isAuthenticated ? "true" : "false"}</Text>
+                <Text>{JSON.stringify(tokens, null, 2)}</Text>
+            </View>
+        </View>
     );
 }
 
-// 外部で使用できる
 export default function RootLayout() {
     return (
         <AuthProvider>

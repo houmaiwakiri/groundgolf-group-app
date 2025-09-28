@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { Button, View, StyleSheet } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../../src/libs/auth';
 
-// 型定義
 type ExpoExtra = {
     // 必須
     cognitoClientId: string;
@@ -15,58 +16,92 @@ type ExpoExtra = {
 
 export default function LoginButton() {
     const extra = Constants.expoConfig?.extra as ExpoExtra;
-    const scope = extra.cognitoScope?.split(' ') ?? ['openid', 'profile', 'email'];
+    const scope = extra.cognitoScope?.split(' ') ?? ['openid', 'phone', 'profile', 'email'];
     const responseType = extra.cognitoResponseType ?? 'code';
 
-    const [message, setMessage] = useState<string>('');
+    const router = useRouter();
+    const { login } = useAuth();
 
-    // リダイレクトURI（Expo Go / 本番両対応）
-    const redirectUri = AuthSession.makeRedirectUri({ scheme: 'front' });
+    // リダイレクトURI
+    const redirectUri = AuthSession.makeRedirectUri({ scheme: 'groundgolf-group-app' });
 
     // 認証リクエストを作成
     const [request, result, promptAsync] = AuthSession.useAuthRequest(
         {
             clientId: extra.cognitoClientId,
             redirectUri,
-            responseType: responseType,
+            responseType,
             scopes: scope,
+            usePKCE: false, // 開発用: PKCE無効化
         },
         {
-            authorizationEndpoint: `https://${extra.cognitoDomain}/login`,
-            tokenEndpoint: `https://${extra.cognitoDomain}/oauth2/token`,
+            // loginでも成功するが、こちらが正式
+            authorizationEndpoint: `https://${extra.cognitoDomain}/oauth2/authorize/`,
+            tokenEndpoint: `https://${extra.cognitoDomain}/oauth2/token/`,
         }
     );
 
-    // 認証結果を監視
+    // 認証結果を監視してトークン取得・ログイン・タブ画面遷移
     useEffect(() => {
-        if (result) {
-            if (result.type === 'success' && result.params?.code) {
-                setMessage(`Auth code: ${result.params.code}`);
-            } else if (result.type === 'dismiss') {
-                setMessage('Login dismissed');
-            } else {
-                setMessage(`Login failed: ${JSON.stringify(result)}`);
-            }
+        // 成功時
+        if (result?.type === 'success' && result.params?.code) {
+            (async () => {
+                try {
+                    const code = result.params.code;
+
+                    // --- デバッグ用: 認証コードを確認 ---
+                    console.log('Auth code:', code);
+                    // --- デバッグ用終了 ---
+
+                    // トークン取得リクエスト
+                    const body = new URLSearchParams({
+                        grant_type: 'authorization_code',
+                        client_id: extra.cognitoClientId,
+                        code,
+                        redirect_uri: redirectUri,
+                    });
+
+                    const tokenResponse = await fetch(`https://${extra.cognitoDomain}/oauth2/token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: body.toString(),
+                    });
+
+                    const tokens = await tokenResponse.json();
+
+                    // --- デバッグ用: 取得トークンを確認 ---
+                    console.log('Tokens:', tokens);
+                    // --- デバッグ用終了 ---
+
+                    // AuthProvider にトークン保存
+                    await login({
+                        access_token: tokens.access_token,
+                        id_token: tokens.id_token,
+                        refresh_token: tokens.refresh_token,
+                    });
+
+                    // 認証済みなら画面に遷移
+                    router.replace('/(tabs)/other');
+                } catch (err) {
+                    console.error('Login failed:', err);
+                }
+            })();
         }
     }, [result]);
 
     return (
         <View style={styles.container}>
             <Button
-                title="Login with Cognito"
+                title="ログイン"
                 disabled={!request}
-                onPress={() => {
-                    promptAsync({ useProxy: true }).catch((err) =>
-                        setMessage(`Error: ${err.message}`)
-                    );
-                }}
+                onPress={() => promptAsync({ useProxy: true })}
             />
-            {message !== '' && <Text style={styles.message}>{message}</Text>}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { padding: 20 },
-    message: { marginTop: 20, color: 'red' },
 });

@@ -17,13 +17,6 @@ function RootNavigator() {
 
     return (
         <View style={{ flex: 1 }}>
-            {/* <Stack screenOptions={{ headerShown: false }}>
-                {isAuthenticated ? (
-                    <Stack.Screen name="(tabs)" />
-                ) : (
-                    <Stack.Screen name="(auth)/login" />
-                )}
-            </Stack> */}
             <Stack>
                 <Stack.Protected guard={isAuthenticated}>
                     <Stack.Screen name="(tabs)" />

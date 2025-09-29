@@ -32,10 +32,9 @@ export default function LoginButton() {
             redirectUri,
             responseType,
             scopes: scope,
-            usePKCE: false, // 開発用: PKCE無効化
+            usePKCE: false,
         },
         {
-            // loginでも成功するが、こちらが正式
             authorizationEndpoint: `https://${extra.cognitoDomain}/oauth2/authorize/`,
             tokenEndpoint: `https://${extra.cognitoDomain}/oauth2/token/`,
         }
@@ -48,10 +47,6 @@ export default function LoginButton() {
             (async () => {
                 try {
                     const code = result.params.code;
-
-                    // --- デバッグ用: 認証コードを確認 ---
-                    console.log('Auth code:', code);
-                    // --- デバッグ用終了 ---
 
                     // トークン取得リクエスト
                     const body = new URLSearchParams({
@@ -70,10 +65,6 @@ export default function LoginButton() {
                     });
 
                     const tokens = await tokenResponse.json();
-
-                    // --- デバッグ用: 取得トークンを確認 ---
-                    console.log('Tokens:', tokens);
-                    // --- デバッグ用終了 ---
 
                     // AuthProvider にトークン保存
                     await login({

@@ -1,0 +1,118 @@
+name: Full Deploy to ECS
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set ECS names from repo
+        run: |
+          REPO_NAME=$(basename $GITHUB_REPOSITORY)
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+          echo "ECS_CLUSTER_NAME=${REPO_NAME}-cluster" >> $GITHUB_ENV
+          echo "ECS_SERVICE_NAME=${REPO_NAME}-service" >> $GITHUB_ENV
+          echo "ECS_TASK_FAMILY=${REPO_NAME}-task" >> $GITHUB_ENV
+          echo "ECS_CONTAINER_NAME=${REPO_NAME}-container" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push Docker image
+        run: |
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO_NAME:${{ github.sha }}
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+          docker build -t $IMAGE_URI ./back
+          docker push $IMAGE_URI
+
+      - name: Ensure IAM Role (ecsTaskExecutionRole) exists
+        run: |
+          set +e
+          aws iam get-role --role-name ecsTaskExecutionRole 2>/dev/null
+          if [ $? -ne 0 ]; then
+            echo "Creating ecsTaskExecutionRole..."
+            aws iam create-role \
+              --role-name ecsTaskExecutionRole \
+              --assume-role-policy-document '{
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": { "Service": "ecs-tasks.amazonaws.com" },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }'
+            aws iam attach-role-policy \
+              --role-name ecsTaskExecutionRole \
+              --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+          else
+            echo "ecsTaskExecutionRole already exists."
+          fi
+
+      - name: Register new ECS task definition
+        run: |
+          cat > task-def.json <<EOF
+          {
+            "family": "$ECS_TASK_FAMILY",
+            "networkMode": "awsvpc",
+            "requiresCompatibilities": ["FARGATE"],
+            "cpu": "256",
+            "memory": "512",
+            "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+            "containerDefinitions": [
+              {
+                "name": "$ECS_CONTAINER_NAME",
+                "image": "$IMAGE_URI",
+                "essential": true,
+                "portMappings": [
+                  { "containerPort": 8080, "protocol": "tcp" }
+                ],
+                "environment": [
+                  { "name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://<EC2のプライベートIP>:3306/appdb" },
+                  { "name": "SPRING_DATASOURCE_USERNAME", "value": "appuser" },
+                  { "name": "SPRING_DATASOURCE_PASSWORD", "value": "apppass" }
+                ]
+              }
+            ]
+          }
+          EOF
+
+          aws ecs register-task-definition --cli-input-json file://task-def.json
+
+      - name: Create or update ECS service
+        run: |
+          set +e
+          aws ecs describe-services \
+            --cluster $ECS_CLUSTER_NAME \
+            --services $ECS_SERVICE_NAME >/dev/null 2>&1
+          if [ $? -ne 0 ]; then
+            echo "Service not found. Creating..."
+            aws ecs create-service \
+              --cluster $ECS_CLUSTER_NAME \
+              --service-name $ECS_SERVICE_NAME \
+              --task-definition $ECS_TASK_FAMILY \
+              --desired-count 1 \
+              --launch-type FARGATE \
+              --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNETS }}],securityGroups=[${{ secrets.SECURITY_GROUPS }}],assignPublicIp=ENABLED}"
+          else
+            echo "Service exists. Updating..."
+            aws ecs update-service \
+              --cluster $ECS_CLUSTER_NAME \
+              --service $ECS_SERVICE_NAME \
+              --task-definition $ECS_TASK_FAMILY \
+              --force-new-deployment
+          fi

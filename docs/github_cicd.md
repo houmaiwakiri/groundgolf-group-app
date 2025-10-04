@@ -16,11 +16,6 @@ your-repo/
 ├─ pom.xml / build.gradle    ← Java ビルド用
 ```
 
-ポイント:
-
-* `deploy.yml` は任意の名前で OK
-* フォルダ構成は必ず `.github/workflows/` 内に置くこと
-
 ---
 
 ## GitHub Secrets 設定

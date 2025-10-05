@@ -50,18 +50,6 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      # ECR リポジトリ作成（存在しなければ）
-      - name: Ensure ECR repository exists
-        run: |
-          set +e
-          aws ecr describe-repositories --repository-names $REPO_NAME
-          if [ $? -ne 0 ]; then
-            echo "ECR repository $REPO_NAME not found. Creating..."
-            aws ecr create-repository --repository-name $REPO_NAME
-          else
-            echo "ECR repository $REPO_NAME already exists."
-          fi
-
       # Docker イメージビルド & プッシュ
       - name: Build, tag, and push Docker image
         run: |

@@ -10,23 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. リポジトリをチェックアウト
       - name: Checkout source
         uses: actions/checkout@v3
 
-      # 2. Javaセットアップ (JDK 21)
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 21
-
-      # 3. Javaアプリをビルド (Mavenの場合)
-      - name: Build Java project
-        working-directory: ./back
-        run: mvn clean package -DskipTests
-
-      # 4. ECS 用の名前を設定
       - name: Set ECS names from repo
         run: |
           REPO_NAME=$(basename $GITHUB_REPOSITORY)
@@ -36,7 +22,6 @@ jobs:
           echo "ECS_TASK_FAMILY=${REPO_NAME}-task" >> $GITHUB_ENV
           echo "ECS_CONTAINER_NAME=${REPO_NAME}-container" >> $GITHUB_ENV
 
-      # 5. AWS クレデンシャル設定
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -44,11 +29,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # 6. ECR にログイン
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 7. Docker イメージ build & push
       - name: Build, tag, and push Docker image
         run: |
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO_NAME:${{ github.sha }}
@@ -56,33 +39,6 @@ jobs:
           docker build -t $IMAGE_URI ./back
           docker push $IMAGE_URI
 
-      # 8. ecsTaskExecutionRole の作成チェック
-      - name: Ensure IAM Role (ecsTaskExecutionRole) exists
-        run: |
-          set +e
-          aws iam get-role --role-name ecsTaskExecutionRole 2>/dev/null
-          if [ $? -ne 0 ]; then
-            echo "Creating ecsTaskExecutionRole..."
-            aws iam create-role \
-              --role-name ecsTaskExecutionRole \
-              --assume-role-policy-document '{
-                "Version": "2012-10-17",
-                "Statement": [
-                  {
-                    "Effect": "Allow",
-                    "Principal": { "Service": "ecs-tasks.amazonaws.com" },
-                    "Action": "sts:AssumeRole"
-                  }
-                ]
-              }'
-            aws iam attach-role-policy \
-              --role-name ecsTaskExecutionRole \
-              --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-          else
-            echo "ecsTaskExecutionRole already exists."
-          fi
-
-      # 9. ECS タスク定義登録
       - name: Register new ECS task definition
         run: |
           cat > task-def.json <<EOF
@@ -113,7 +69,6 @@ jobs:
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
 
-      # 10. ECS サービス作成 or 更新
       - name: Create or update ECS service
         run: |
           set +e

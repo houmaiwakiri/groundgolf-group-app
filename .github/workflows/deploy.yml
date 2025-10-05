@@ -50,6 +50,18 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      # ECR リポジトリ作成（存在しなければ）
+      - name: Ensure ECR repository exists
+        run: |
+          set +e
+          aws ecr describe-repositories --repository-names $REPO_NAME
+          if [ $? -ne 0 ]; then
+            echo "ECR repository $REPO_NAME not found. Creating..."
+            aws ecr create-repository --repository-name $REPO_NAME
+          else
+            echo "ECR repository $REPO_NAME already exists."
+          fi
+
       # Docker イメージビルド & プッシュ
       - name: Build, tag, and push Docker image
         run: |
@@ -62,30 +74,30 @@ jobs:
       - name: Register new ECS task definition
         run: |
           cat > task-def.json <<EOF
-          {
-            "family": "$ECS_TASK_FAMILY",
-            "networkMode": "awsvpc",
-            "requiresCompatibilities": ["FARGATE"],
-            "cpu": "256",
-            "memory": "512",
-            "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
-            "containerDefinitions": [
-              {
-                "name": "$ECS_CONTAINER_NAME",
-                "image": "$IMAGE_URI",
-                "essential": true,
-                "portMappings": [
-                  { "containerPort": 8080, "protocol": "tcp" }
-                ],
-                "environment": [
-                  { "name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" },
-                  { "name": "SPRING_DATASOURCE_USERNAME", "value": "${{ secrets.DB_USER }}" },
-                  { "name": "SPRING_DATASOURCE_PASSWORD", "value": "${{ secrets.DB_PASS }}" }
-                ]
-              }
-            ]
-          }
-          EOF
+{
+  "family": "$ECS_TASK_FAMILY",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "$ECS_CONTAINER_NAME",
+      "image": "$IMAGE_URI",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 8080, "protocol": "tcp" }
+      ],
+      "environment": [
+        { "name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" },
+        { "name": "SPRING_DATASOURCE_USERNAME", "value": "${{ secrets.DB_USER }}" },
+        { "name": "SPRING_DATASOURCE_PASSWORD", "value": "${{ secrets.DB_PASS }}" }
+      ]
+    }
+  ]
+}
+EOF
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
 

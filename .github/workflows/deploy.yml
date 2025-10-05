@@ -92,15 +92,21 @@ jobs:
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
 
-
       # ECS サービス作成 or 更新
       - name: Create or update ECS service
         run: |
+          #!/bin/bash
+          set -e
+
+          # サービスが存在するか確認
           set +e
           aws ecs describe-services \
             --cluster $ECS_CLUSTER_NAME \
             --services $ECS_SERVICE_NAME >/dev/null 2>&1
-          if [ $? -ne 0 ]; then
+          SERVICE_EXISTS=$?
+          set -e
+
+          if [ $SERVICE_EXISTS -ne 0 ]; then
             echo "Service not found. Creating..."
             aws ecs create-service \
               --cluster $ECS_CLUSTER_NAME \
@@ -116,3 +122,4 @@ jobs:
               --service $ECS_SERVICE_NAME \
               --task-definition $ECS_TASK_FAMILY \
               --force-new-deployment
+          fi

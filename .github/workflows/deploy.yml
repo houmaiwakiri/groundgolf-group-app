@@ -22,16 +22,6 @@ jobs:
           echo "ECS_TASK_FAMILY=${REPO_NAME}-task" >> $GITHUB_ENV
           echo "ECS_CONTAINER_NAME=${REPO_NAME}-container" >> $GITHUB_ENV
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Build Java app
-        working-directory: ./back
-        run: mvn -B package
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -41,6 +31,17 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Ensure ECR repository exists
+        run: |
+          set +e
+          aws ecr describe-repositories --repository-names $REPO_NAME >/dev/null 2>&1
+          if [ $? -ne 0 ]; then
+            echo "ECR repository $REPO_NAME not found. Creating..."
+            aws ecr create-repository --repository-name $REPO_NAME
+          else
+            echo "ECR repository $REPO_NAME already exists."
+          fi
 
       - name: Build, tag, and push Docker image
         run: |
@@ -126,3 +127,4 @@ jobs:
               --service $ECS_SERVICE_NAME \
               --task-definition $ECS_TASK_FAMILY \
               --force-new-deployment
+          fi

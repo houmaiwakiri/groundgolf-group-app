@@ -61,33 +61,37 @@ jobs:
       # ECS タスク定義登録
       - name: Register new ECS task definition
         run: |
-          cat > task-def.json <<EOF
-          {
-            "family": "$ECS_TASK_FAMILY",
-            "networkMode": "awsvpc",
-            "requiresCompatibilities": ["FARGATE"],
-            "cpu": "256",
-            "memory": "512",
-            "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
-            "containerDefinitions": [
-              {
-                "name": "$ECS_CONTAINER_NAME",
-                "image": "$IMAGE_URI",
-                "essential": true,
-                "portMappings": [
-                  { "containerPort": 8080, "protocol": "tcp" }
-                ],
-                "environment": [
-                  { "name": "SPRING_DATASOURCE_URL", "value": "jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" },
-                  { "name": "SPRING_DATASOURCE_USERNAME", "value": "${{ secrets.DB_USER }}" },
-                  { "name": "SPRING_DATASOURCE_PASSWORD", "value": "${{ secrets.DB_PASS }}" }
-                ]
-              }
-            ]
-          }
-          EOF
+          jq -n \
+            --arg family "$ECS_TASK_FAMILY" \
+            --arg container "$ECS_CONTAINER_NAME" \
+            --arg image "$IMAGE_URI" \
+            --arg url "jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" \
+            --arg user "${{ secrets.DB_USER }}" \
+            --arg pass "${{ secrets.DB_PASS }}" \
+            '{
+              family: $family,
+              networkMode: "awsvpc",
+              requiresCompatibilities: ["FARGATE"],
+              cpu: "256",
+              memory: "512",
+              executionRoleArn: "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+              containerDefinitions: [
+                {
+                  name: $container,
+                  image: $image,
+                  essential: true,
+                  portMappings: [{containerPort: 8080, protocol: "tcp"}],
+                  environment: [
+                    {name: "SPRING_DATASOURCE_URL", value: $url},
+                    {name: "SPRING_DATASOURCE_USERNAME", value: $user},
+                    {name: "SPRING_DATASOURCE_PASSWORD", value: $pass}
+                  ]
+                }
+              ]
+            }' > task-def.json
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
+
 
       # ECS サービス作成 or 更新
       - name: Create or update ECS service

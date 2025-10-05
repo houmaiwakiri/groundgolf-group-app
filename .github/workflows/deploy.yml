@@ -32,6 +32,12 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Build backend jar
+        run: |
+          cd back
+          mvn clean package -DskipTests
+          cd ..
+
       - name: Build, tag, and push Docker image
         run: |
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO_NAME:${{ github.sha }}
@@ -39,7 +45,7 @@ jobs:
           docker build -t $IMAGE_URI ./back
           docker push $IMAGE_URI
 
-      - name: Register new ECS task definition
+      - name: Register ECS task definition
         run: |
           cat > task-def.json <<EOF
           {

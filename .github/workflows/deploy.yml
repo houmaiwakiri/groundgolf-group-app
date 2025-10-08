@@ -2,7 +2,8 @@ name: Full Deploy to ECS
 
 on:
   push:
-    branches: [ "main" ]
+    # deployブランチへのpushをトリガーにする
+    branches: [ "deploy" ]
   workflow_dispatch:
 
 jobs:
@@ -14,21 +15,21 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
-      # Java 21 をセット
+      # Java21
       - name: Set up Java 21
         uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      # Maven で jar ビルド
+      # Mavenでjarビルド
       - name: Build backend jar
         run: |
           cd back
           mvn clean package -DskipTests
           cd ..
 
-      # ECS 名などを設定
+      # ECS設定
       - name: Set ECS names from repo
         run: |
           REPO_NAME=$(basename $GITHUB_REPOSITORY)
@@ -38,7 +39,7 @@ jobs:
           echo "ECS_TASK_FAMILY=${REPO_NAME}-task" >> $GITHUB_ENV
           echo "ECS_CONTAINER_NAME=${REPO_NAME}-container" >> $GITHUB_ENV
 
-      # AWS 認証情報を設定
+      # AWS認証情報を設定
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -46,11 +47,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # ECR にログイン
+      # ECR
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      # Docker イメージビルド & プッシュ
+      # Dockerイメージビルド&プッシュ
       - name: Build, tag, and push Docker image
         run: |
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$REPO_NAME:${{ github.sha }}
@@ -58,7 +59,7 @@ jobs:
           docker build -t $IMAGE_URI ./back
           docker push $IMAGE_URI
 
-      # ECS タスク定義登録
+      # ECSタスク定義登録
       - name: Register new ECS task definition
         run: |
           jq -n \
@@ -92,7 +93,7 @@ jobs:
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
 
-      # ECS クラスター作成 or 確認
+      # ECSクラスター作成
       - name: Create ECS cluster if not exists
         run: |
           set -e
@@ -106,7 +107,7 @@ jobs:
             echo "Cluster already exists ($CLUSTER_STATUS)"
           fi
 
-      # ECS サービス作成 or 更新
+      # ECSサービス作成
       - name: Create or update ECS service
         run: |
           set -e

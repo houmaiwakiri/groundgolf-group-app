@@ -75,6 +75,7 @@ jobs:
             --arg url "jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" \
             --arg user "${{ secrets.DB_USER }}" \
             --arg pass "${{ secrets.DB_PASS }}" \
+            --arg region "${{ secrets.AWS_REGION }}" \
             '{
               family: $family,
               networkMode: "awsvpc",
@@ -92,10 +93,22 @@ jobs:
                     {name: "SPRING_DATASOURCE_URL", value: $url},
                     {name: "SPRING_DATASOURCE_USERNAME", value: $user},
                     {name: "SPRING_DATASOURCE_PASSWORD", value: $pass}
-                  ]
+                  ],
+                  logConfiguration: {
+                    logDriver: "awslogs",
+                    options: {
+                      "awslogs-group": "/ecs/\($family)",
+                      "awslogs-region": $region,
+                      "awslogs-stream-prefix": "ecs"
+                    }
+                  }
                 }
               ]
             }' > task-def.json
+
+          echo "---- Task Definition ----"
+          cat task-def.json
+          echo "-------------------------"
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
 

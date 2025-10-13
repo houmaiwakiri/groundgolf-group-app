@@ -97,7 +97,7 @@ jobs:
                   logConfiguration: {
                     logDriver: "awslogs",
                     options: {
-                      "awslogs-group": "/ecs/" + $family,
+                      "awslogs-group": "/ecs/\($family)",
                       "awslogs-region": $region,
                       "awslogs-stream-prefix": "ecs"
                     }
@@ -111,7 +111,6 @@ jobs:
           echo "-------------------------"
 
           aws ecs register-task-definition --cli-input-json file://task-def.json
-
 
       # ECSクラスター作成
       - name: Create ECS cluster if not exists

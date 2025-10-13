@@ -66,6 +66,7 @@ jobs:
           docker push $IMAGE_URI
 
       # ECSタスク定義登録
+      # ロググループが作成されない場合は、GUIから作成しておく。/ecs/groundgolf-group-app-task
       - name: Register new ECS task definition
         run: |
           jq -n \
@@ -146,6 +147,7 @@ jobs:
               --task-definition $ECS_TASK_FAMILY \
               --desired-count 1 \
               --launch-type FARGATE \
+              --deployment-configuration maximumPercent=100,minimumHealthyPercent=0 \
               --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNETS }}],securityGroups=[${{ secrets.SECURITY_GROUPS }}],assignPublicIp=ENABLED}"
             echo "Service created: $ECS_SERVICE_NAME"
           else

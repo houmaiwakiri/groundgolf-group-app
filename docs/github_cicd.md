@@ -237,7 +237,7 @@
 
 ## 7. Tips（実際にハマった事例と解決策）
 
-### 事例: `ECS サービス作成時に AccessDeniedException`
+### 事例1: `ECS サービス作成時に AccessDeniedException`
 
 #### **現象**
 
@@ -258,8 +258,6 @@ ECS が内部的に使用する **サービスリンクロール (AWSServiceRole
 ECS サービスリンクロールは、
 ECS が VPC / ネットワーク / タスク管理を自動で行うために必要なロールです。
 
----
-
 ### **解決方法**
 
 1. 一度だけ以下のコマンドを実行して、ECS 用のサービスリンクロールを作成します：
@@ -267,5 +265,50 @@ ECS が VPC / ネットワーク / タスク管理を自動で行うために必
    ```bash
    aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com
    ```
+
+---
+
+### 事例2: `ECS Fargate タスクが CloudWatch Logs に書き込めず即終了`
+
+#### **現象**
+
+タスクを初回デプロイした際、ECS タスクが即終了し、CloudWatch Logs にログが出ません。GitHub Actions のログは成功していますが、ECS 側のタスクが Exit Code 1 で停止します。
+
+タスク詳細のエラー例：
+
+```txt
+ResourceInitializationError: failed to validate logger args: 
+create stream has been retried 1 times: failed to create Cloudwatch log stream: 
+operation error CloudWatch Logs: CreateLogStream, https response error StatusCode: 400, 
+ResourceNotFoundException: The specified log group does not exist.
+```
+
+#### **原因**
+
+* ECS タスク定義で指定したロググループ（例: `/ecs/groundgolf-group-app-task`）が存在していない
+* `executionRoleArn` に指定したタスク実行ロールに `logs:CreateLogGroup` 権限を追加しても、Fargate は自動作成が失敗することがある
+* 結果として、ログストリーム作成に失敗し、タスクが即終了する
+
+---
+
+### **解決方法**
+
+1. タスク実行ロールに CloudWatch Logs への権限があることを確認：
+
+   * 必須権限：
+
+     ```json
+     "logs:CreateLogGroup",
+     "logs:CreateLogStream",
+     "logs:PutLogEvents"
+     ```
+
+2. デプロイ前に、タスク定義で指定したロググループを手動で作成：
+
+   ```bash
+   aws logs create-log-group --log-group-name /ecs/groundgolf-group-app-task
+   ```
+
+3. その後、タスクを再デプロイするとログが出力される。
 
 ---

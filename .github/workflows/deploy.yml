@@ -73,7 +73,7 @@ jobs:
             --arg family "$ECS_TASK_FAMILY" \
             --arg container "$ECS_CONTAINER_NAME" \
             --arg image "$IMAGE_URI" \
-            --arg url "jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" \
+            --arg url "jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?useSSL=false&serverTimezone=Asia/Tokyo&allowPublicKeyRetrieval=true" \
             --arg user "${{ secrets.DB_USER }}" \
             --arg pass "${{ secrets.DB_PASS }}" \
             --arg region "${{ secrets.AWS_REGION }}" \

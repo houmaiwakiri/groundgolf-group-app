@@ -18,13 +18,19 @@ public class Score {
     @ElementCollection
     private List<Integer> strokes;
 
-    public Score() {}
+    // エンティティクラスには必ず引数なしのコンストラクタが必要であるため記載
+    public Score() {
+    }
 
     public Score(List<Integer> strokes) {
         this.strokes = strokes;
     }
 
-    public Long getId() { return id; }
-    public List<Integer> getStrokes() { return strokes; }
-    public List<Integer> getStrokesAsList() { return strokes; }
+    public Long getId() {
+        return id;
+    }
+
+    public List<Integer> getStrokes() {
+        return strokes;
+    }
 }

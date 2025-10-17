@@ -24,15 +24,14 @@ public class ScoreController {
 
     @PostMapping
     public Score register(@RequestBody List<Integer> strokes) {
-        System.out.println("受け取った値: " + strokes);
         return service.registerScore(strokes);
     }
 
     @GetMapping
     public List<List<Integer>> list() {
         return service.getAllScores()
-                      .stream()
-                      .map(Score::getStrokesAsList)
-                      .collect(Collectors.toList());
+                .stream()
+                .map(Score::getStrokes)
+                .collect(Collectors.toList());
     }
 }

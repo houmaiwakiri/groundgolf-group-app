@@ -1,13 +1,20 @@
 import React from "react";
+import Constants from 'expo-constants';
 import { View, Button, StyleSheet, Text, Alert } from "react-native";
 
+type ExpoExtra = {
+    // 必須
+    apiBaseUrl: string;
+};
+
 export default function ScoreRegister() {
+    const extra = Constants.expoConfig?.extra as ExpoExtra;
     const handleRegister = async () => {
         // TESTデータ
         const body = [3, 4, 5, 2, 3, 4, 3, 4, 2, 3];
 
         try {
-            const res = await fetch("http://192.168.10.101:8080/scores", {
+            const res = await fetch(`${extra.apiBaseUrl}/scores`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),

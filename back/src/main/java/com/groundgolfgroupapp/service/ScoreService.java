@@ -1,11 +1,9 @@
-package com.groundgolfgroupapp.application;
-
-import java.util.List;
+package com.groundgolfgroupapp.service;
 
 import org.springframework.stereotype.Service;
-
-import com.groundgolfgroupapp.domain.model.Score;
-import com.groundgolfgroupapp.domain.repository.ScoreRepository;
+import java.util.List;
+import com.groundgolfgroupapp.entity.Score;
+import com.groundgolfgroupapp.repository.ScoreRepository;
 
 @Service
 public class ScoreService {
@@ -16,7 +14,6 @@ public class ScoreService {
         this.repository = repository;
     }
 
-    // Controllerから渡された List<Integer> を Entity に変換して保存
     public Score registerScore(List<Integer> strokes) {
         Score score = new Score(strokes);
         return repository.save(score);

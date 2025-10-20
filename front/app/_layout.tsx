@@ -15,7 +15,7 @@ function RootNavigator() {
 
     return (
         <View style={{ flex: 1 }}>
-            <Stack>
+            <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Protected guard={isAuthenticated}>
                     <Stack.Screen name="(tabs)" />
                 </Stack.Protected>

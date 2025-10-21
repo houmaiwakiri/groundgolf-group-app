@@ -1,30 +1,30 @@
 import { Stack } from "expo-router";
 import { AuthProvider, useAuth } from "../src/libs/auth";
 import LoadingIndicator from "../src/components/LoadingIndicator";
-import { Text, View } from "react-native";
 
 function RootNavigator() {
     const { tokens, loading } = useAuth();
-
     const isAuthenticated = !!tokens;
 
     if (loading) {
-        // トークン読込中はローディング表示
         return <LoadingIndicator />;
     }
 
     return (
-        <View style={{ flex: 1 }}>
-            <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Protected guard={isAuthenticated}>
-                    <Stack.Screen name="(tabs)" />
-                </Stack.Protected>
+        <Stack screenOptions={{ headerShown: false }}>
+            {/* 起動時に表示するトップ画面 */}
+            <Stack.Screen name="top" />
 
-                <Stack.Protected guard={!isAuthenticated}>
-                    <Stack.Screen name="(auth)" />
-                </Stack.Protected>
-            </Stack>
-        </View >
+            {/* 認証済みならタブ画面へ */}
+            <Stack.Protected guard={isAuthenticated}>
+                <Stack.Screen name="(tabs)" />
+            </Stack.Protected>
+
+            {/* 未認証ならログイン画面へ */}
+            <Stack.Protected guard={!isAuthenticated}>
+                <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+        </Stack>
     );
 }
 

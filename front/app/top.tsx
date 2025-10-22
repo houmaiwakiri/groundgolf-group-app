@@ -8,7 +8,8 @@ export default function TopScreen() {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => router.replace("")} // 空文字で次のStackに自動で進む
+    //   router.pushの場合、ブラウザバックができるため、replaceを使用して戻れないようにする
+      onPress={() => router.replace("/(auth)/login")}
     >
       <ImageBackground
         source={require("../assets/images/background/top.png")}

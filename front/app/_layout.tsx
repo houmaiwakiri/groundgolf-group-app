@@ -7,6 +7,7 @@ function RootNavigator() {
     const isAuthenticated = !!tokens;
 
     if (loading) {
+        // ローディング中に表示する画面
         return <LoadingIndicator />;
     }
 

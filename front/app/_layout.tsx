@@ -2,15 +2,18 @@ import { Stack } from "expo-router";
 import { AuthProvider, useAuth } from "../src/libs/auth";
 import LoadingIndicator from "../src/components/LoadingIndicator";
 
+// 画面構成
 function RootNavigator() {
     const { tokens, loading } = useAuth();
     const isAuthenticated = !!tokens;
 
     if (loading) {
+        // ローディング中に表示する画面
         return <LoadingIndicator />;
     }
 
     return (
+
         <Stack screenOptions={{ headerShown: false }}>
             {/* 起動時に表示するトップ画面 */}
             <Stack.Screen name="top" />
@@ -28,8 +31,11 @@ function RootNavigator() {
     );
 }
 
+// ルーティングの起点となるコンポーネント(PHPのindex.php的な役割)
 export default function RootLayout() {
     return (
+        // RootNavigator配下のコンポーネントでは、
+        // AuthProviderが提供する認証状態を自由に参照できる。
         <AuthProvider>
             <RootNavigator />
         </AuthProvider>

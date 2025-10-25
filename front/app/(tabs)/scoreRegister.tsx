@@ -35,8 +35,10 @@ export default function ScoreRegister() {
         }
 
         const body = scores.map((s) => Number(s));
+        // lodingにtrueをセットすることで、ローディング中のアイコンを表示する。
         setLoading(true);
         try {
+            // bodyをスコアとして、json形式でAPIへ送信
             const res = await fetch(`${extra.apiBaseUrl}/scores`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -50,6 +52,7 @@ export default function ScoreRegister() {
         } catch (err: any) {
             Alert.alert("エラー", err.message);
         } finally {
+            // lodingにfalseをセットして、ローディング中のアイコンを非表示にする。
             setLoading(false);
         }
     };
@@ -67,7 +70,7 @@ export default function ScoreRegister() {
                 <View style={styles.form}>
                     {scores.map((value, index) => (
                         <View key={index} style={styles.inputRow}>
-                            <Text style={styles.label}>Hole {index + 1}</Text>
+                            <Text style={styles.label}>ホール {index + 1}</Text>
                             <TextInput
                                 style={styles.input}
                                 keyboardType="number-pad"

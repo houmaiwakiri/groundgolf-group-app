@@ -22,9 +22,10 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
 
     // リダイレクトURI
+    // Cognitoに渡し、認証後にそのURIにリダイレクトしてアプリに戻す。
     const redirectUri = AuthSession.makeRedirectUri({ scheme: "groundgolf-group-app" });
 
-    // 認証リクエスト作成
+    // 認証リクエスト準備
     const [request, result, promptAsync] = AuthSession.useAuthRequest(
         {
             clientId: extra.cognitoClientId,
@@ -95,6 +96,7 @@ export default function LoginScreen() {
 
                 <TouchableOpacity
                     style={[styles.button, (!request || loading) && styles.disabled]}
+                    // ログイン押下によって発火
                     onPress={() => promptAsync({ useProxy: true })}
                     disabled={!request || loading}
                 >

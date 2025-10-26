@@ -15,15 +15,15 @@ function RootNavigator() {
     return (
 
         <Stack screenOptions={{ headerShown: false }}>
-            {/* 起動時に表示するトップ画面 */}
+            {/* 起動画面 */}
             <Stack.Screen name="top" />
 
-            {/* 認証済みならタブ画面へ */}
+            {/* 認証済みルーター読み込み */}
             <Stack.Protected guard={isAuthenticated}>
                 <Stack.Screen name="(tabs)" />
             </Stack.Protected>
 
-            {/* 未認証ならログイン画面へ */}
+            {/* 未認証用のルーター読み込み */}
             <Stack.Protected guard={!isAuthenticated}>
                 <Stack.Screen name="(auth)" />
             </Stack.Protected>

@@ -33,7 +33,7 @@ export default function Callback() {
         // ログイン結果を待つ間に、LoadingIndicatorを表示するため
         const handleAuth = async () => {
             try {
-                // 認可コードからトークンを取得する
+                // 認可コードを使用し、トークンを発行する。
                 const tokens = await exchangeCodeForToken(code, extra);
                 // 取得したトークンでログイン処理を実行
                 await login(tokens);

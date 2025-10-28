@@ -19,13 +19,20 @@ export default function LoginScreen() {
 
     const router = useRouter();
     const { login } = useAuth();
+
+    // useStateは、Reactの状態管理フック。
+    // [0]が状態変数、[1]がその変数を更新する関数。
     const [loading, setLoading] = useState(false);
 
     // リダイレクトURI
     // Cognitoに渡し、認証後にそのURIにリダイレクトしてアプリに戻す。
     const redirectUri = AuthSession.makeRedirectUri({ scheme: "groundgolf-group-app" });
 
-    // 認証リクエスト準備
+    // useAuthRequestは、認証リクエストを作成し、認証フローを管理するためのフック
+    // 下記3つの値を返す。
+    // 1.request::OAuthリクエストの設定情報が入ったオブジェクト
+    // 2.result::OAuth認証後に結果が入るオブジェクト
+    // 3.promptAsync::ログイン画面を開く組み込み関数。
     const [request, result, promptAsync] = AuthSession.useAuthRequest(
         {
             clientId: extra.cognitoClientId,
@@ -40,7 +47,7 @@ export default function LoginScreen() {
         }
     );
 
-    // 認証結果を監視してトークン取得・ログイン・タブ画面遷移
+    // resultの値を監視し、if文で認証成功した場合にトークン交換を実行
     useEffect(() => {
         if (result?.type === "success" && result.params?.code) {
             (async () => {
@@ -97,7 +104,7 @@ export default function LoginScreen() {
                 <TouchableOpacity
                     style={[styles.button, (!request || loading) && styles.disabled]}
                     // ログイン押下によって発火
-                    onPress={() => promptAsync({ useProxy: true })}
+                    onPress={() => promptAsync()}
                     disabled={!request || loading}
                 >
                     {loading ? (

@@ -1,3 +1,5 @@
+import { fetchTimeout } from "../../src/libs/fetchTimeout";
+
 type ExpoExtra = {
     cognitoClientId: string;
     cognitoDomain: string;
@@ -18,7 +20,7 @@ export async function exchangeCodeForToken(code: string, extra: ExpoExtra) {
     }).toString();
 
     // リクエスト&レスポンス(非同期処理)
-    const response = await fetch(tokenUrl, {
+    const response = await fetchTimeout(tokenUrl, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body,

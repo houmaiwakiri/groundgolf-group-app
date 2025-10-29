@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Constants from "expo-constants";
 import {
     View,
@@ -13,6 +13,8 @@ import {
     ActivityIndicator,
 } from "react-native";
 
+import { fetchTimeout } from "../../src/libs/fetchTimeout";
+
 type ExpoExtra = {
     apiBaseUrl: string;
 };
@@ -22,10 +24,18 @@ export default function ScoreRegister() {
     const [scores, setScores] = useState(Array(8).fill(""));
     const [loading, setLoading] = useState(false);
 
+    // TextInputを参照するための配列を作成
+    const inputRefs = useRef<TextInput[]>([]);
+
     const handleChange = (text: string, index: number) => {
         const newScores = [...scores];
         newScores[index] = text.replace(/[^0-9]/g, "");
         setScores(newScores);
+
+        // 2桁入力またはEnterで次の入力欄へ移動
+        if (text.length >= 2 && index < inputRefs.current.length - 1) {
+            inputRefs.current[index + 1]?.focus();
+        }
     };
 
     const handleRegister = async () => {
@@ -39,16 +49,18 @@ export default function ScoreRegister() {
         setLoading(true);
         try {
             // bodyをスコアとして、json形式でAPIへ送信
-            const res = await fetch(`${extra.apiBaseUrl}/scores`, {
+            const response = await fetchTimeout(`${extra.apiBaseUrl}/scores`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
             });
 
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-            await res.json();
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+            await response.json();
             Alert.alert("登録完了", "スコアを登録しました。");
             setScores(Array(8).fill(""));
+            // 登録完了後、1ホールにもどる。
+            inputRefs.current[0]?.focus();
         } catch (err: any) {
             Alert.alert("エラー", err.message);
         } finally {
@@ -56,11 +68,11 @@ export default function ScoreRegister() {
             setLoading(false);
         }
     };
-
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 60}
         >
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.header}>
@@ -72,6 +84,9 @@ export default function ScoreRegister() {
                         <View key={index} style={styles.inputRow}>
                             <Text style={styles.label}>ホール {index + 1}</Text>
                             <TextInput
+                                ref={(ref) => {
+                                    if (ref) inputRefs.current[index] = ref;
+                                }}
                                 style={styles.input}
                                 keyboardType="number-pad"
                                 maxLength={2}
@@ -79,6 +94,12 @@ export default function ScoreRegister() {
                                 onChangeText={(t) => handleChange(t, index)}
                                 placeholder="0"
                                 placeholderTextColor="#aaa"
+                                returnKeyType={index === 7 ? "done" : "next"}
+                                onSubmitEditing={() => {
+                                    if (index < inputRefs.current.length - 1) {
+                                        inputRefs.current[index + 1]?.focus();
+                                    }
+                                }}
                             />
                         </View>
                     ))}

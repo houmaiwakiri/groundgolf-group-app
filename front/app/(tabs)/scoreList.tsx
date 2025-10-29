@@ -10,6 +10,8 @@ import {
     TouchableOpacity,
 } from "react-native";
 
+import { fetchTimeout } from "../../src/libs/fetchTimeout";
+
 type ExpoExtra = {
     apiBaseUrl: string;
 };
@@ -24,7 +26,7 @@ export default function ScoreList() {
     const fetchScores = useCallback(async () => {
         try {
             setError(null);
-            const res = await fetch(`${extra.apiBaseUrl}/scores`);
+            const res = await fetchTimeout(`${extra.apiBaseUrl}/scores`);
             if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
             const data = await res.json();
             setScores(data);

@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, ActivityIndi
 import * as AuthSession from "expo-auth-session";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
+
 import { useAuth } from "../../src/libs/auth";
+import { fetchTimeout } from "../../src/libs/fetchTimeout";
 
 type ExpoExtra = {
     cognitoClientId: string;
@@ -62,7 +64,7 @@ export default function LoginScreen() {
                         redirect_uri: redirectUri,
                     });
 
-                    const tokenResponse = await fetch(`https://${extra.cognitoDomain}/oauth2/token`, {
+                    const tokenResponse = await fetchTimeout(`https://${extra.cognitoDomain}/oauth2/token`, {
                         method: "POST",
                         headers: { "Content-Type": "application/x-www-form-urlencoded" },
                         body: body.toString(),

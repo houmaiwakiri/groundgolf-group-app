@@ -1,7 +1,9 @@
 package com.groundgolfgroupapp.service;
 
-import org.springframework.stereotype.Service;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.groundgolfgroupapp.entity.Score;
 import com.groundgolfgroupapp.repository.ScoreRepository;
 
@@ -14,12 +16,25 @@ public class ScoreService {
         this.repository = repository;
     }
 
+    public List<Score> getAllScores() {
+        return repository.findAll();
+    }
+
     public Score registerScore(List<Integer> strokes) {
         Score score = new Score(strokes);
         return repository.save(score);
     }
 
-    public List<Score> getAllScores() {
-        return repository.findAll();
+    public void deleteScore(Long id) {
+        repository.deleteById(id);
     }
+
+    public Score updateScore(Long id, List<Integer> strokes) {
+        Score score = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("指定されたIDのスコアが存在しません: " + id));
+
+        score.setStrokes(strokes);
+        return repository.save(score);
+    }
+
 }

@@ -43,4 +43,8 @@ public class Score {
     public List<Integer> getStrokes() {
         return strokes;
     }
+
+    public void setStrokes(List<Integer> strokes) {
+        this.strokes = strokes;
+    }
 }

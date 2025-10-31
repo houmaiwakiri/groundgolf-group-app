@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from "react";
-import Constants from "expo-constants";
 import {
     View,
     Text,
@@ -9,15 +8,9 @@ import {
     RefreshControl,
     TouchableOpacity,
 } from "react-native";
-
-import { fetchTimeout } from "../../src/libs/fetchTimeout";
-
-type ExpoExtra = {
-    apiBaseUrl: string;
-};
+import { getScores } from "../../src/libs/api";
 
 export default function ScoreList() {
-    const extra = Constants.expoConfig?.extra as ExpoExtra;
     const [scores, setScores] = useState<number[][]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -26,9 +19,7 @@ export default function ScoreList() {
     const fetchScores = useCallback(async () => {
         try {
             setError(null);
-            const res = await fetchTimeout(`${extra.apiBaseUrl}/scores`);
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-            const data = await res.json();
+            const data = await getScores();
             setScores(data);
         } catch (err: any) {
             setError(err.message);
@@ -36,7 +27,7 @@ export default function ScoreList() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [extra.apiBaseUrl]);
+    }, []);
 
     useEffect(() => {
         fetchScores();
@@ -55,7 +46,6 @@ export default function ScoreList() {
 
     return (
         <View style={styles.container}>
-            {/* ヘッダー */}
             <View style={styles.header}>
                 <Text style={styles.title}>スコア一覧</Text>
                 <TouchableOpacity onPress={fetchScores} style={styles.refreshButton}>
@@ -63,15 +53,17 @@ export default function ScoreList() {
                 </TouchableOpacity>
             </View>
 
-            {/* スコアリスト */}
             <FlatList
                 data={scores}
                 keyExtractor={(item, index) => index.toString()}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={() => {
-                        setRefreshing(true);
-                        fetchScores();
-                    }} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={() => {
+                            setRefreshing(true);
+                            fetchScores();
+                        }}
+                    />
                 }
                 renderItem={({ item, index }) => (
                     <View style={styles.scoreCard}>

@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import Constants from "expo-constants";
 import {
     View,
     Text,
@@ -12,15 +11,9 @@ import {
     Platform,
     ActivityIndicator,
 } from "react-native";
-
-import { fetchTimeout } from "../../src/libs/fetchTimeout";
-
-type ExpoExtra = {
-    apiBaseUrl: string;
-};
+import { postScores } from "../../src/libs/api";
 
 export default function ScoreRegister() {
-    const extra = Constants.expoConfig?.extra as ExpoExtra;
     const [scores, setScores] = useState(Array(8).fill(""));
     const [loading, setLoading] = useState(false);
 
@@ -48,18 +41,9 @@ export default function ScoreRegister() {
         // lodingにtrueをセットすることで、ローディング中のアイコンを表示する。
         setLoading(true);
         try {
-            // bodyをスコアとして、json形式でAPIへ送信
-            const response = await fetchTimeout(`${extra.apiBaseUrl}/scores`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            });
-
-            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-            await response.json();
+            await postScores(body);
             Alert.alert("登録完了", "スコアを登録しました。");
             setScores(Array(8).fill(""));
-            // 登録完了後、1ホールにもどる。
             inputRefs.current[0]?.focus();
         } catch (err: any) {
             Alert.alert("エラー", err.message);

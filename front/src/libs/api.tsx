@@ -20,3 +20,20 @@ export async function postScores(scores: number[]): Promise<void> {
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
     await res.json();
 }
+
+export async function updateScore(id: number, scores: number[]): Promise<void> {
+    const res = await fetchTimeout(`${BASE_URL}/scores/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(scores),
+    });
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+    await res.json();
+}
+
+export async function deleteScore(id: number): Promise<void> {
+    const res = await fetchTimeout(`${BASE_URL}/scores/${id}`, {
+        method: "DELETE",
+    });
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+}

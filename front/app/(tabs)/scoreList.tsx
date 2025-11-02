@@ -7,8 +7,9 @@ import {
     FlatList,
     RefreshControl,
     TouchableOpacity,
+    Alert,
 } from "react-native";
-import { getScores } from "../../src/libs/api";
+import { getScores, updateScore, deleteScore } from "../../src/libs/api";
 
 export default function ScoreList() {
     const [scores, setScores] = useState<number[][]>([]);
@@ -32,6 +33,58 @@ export default function ScoreList() {
     useEffect(() => {
         fetchScores();
     }, [fetchScores]);
+
+    const handleDelete = (index: number) => {
+        Alert.alert(
+            "削除確認",
+            `ラウンド ${index + 1} を削除しますか？`,
+            [
+                { text: "キャンセル", style: "cancel" },
+                {
+                    text: "削除",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            // 仮でindexは+1で計算。
+                            // APIからIDも返すようにする。
+                            await deleteScore(index + 1);
+                            fetchScores();
+                        } catch (err: any) {
+                            Alert.alert("エラー", err.message);
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
+    const handleEdit = (index: number, currentScores: number[]) => {
+        Alert.prompt(
+            "スコア編集",
+            `現在のスコア: ${currentScores.join(", ")}`,
+            [
+                { text: "キャンセル", style: "cancel" },
+                {
+                    text: "更新",
+                    onPress: async (text) => {
+                        if (!text) return;
+                        try {
+                            const newScores = text
+                                .split(",")
+                                .map((s) => parseInt(s.trim(), 10))
+                                .filter((n) => !isNaN(n));
+                            await updateScore(index + 1, newScores);
+                            fetchScores();
+                        } catch (err: any) {
+                            Alert.alert("エラー", err.message);
+                        }
+                    },
+                },
+            ],
+            "plain-text",
+            currentScores.join(", ")
+        );
+    };
 
     if (loading) return <ActivityIndicator style={styles.center} />;
     if (error)
@@ -69,6 +122,21 @@ export default function ScoreList() {
                     <View style={styles.scoreCard}>
                         <Text style={styles.scoreTitle}>ラウンド {index + 1}</Text>
                         <Text style={styles.scoreDetail}>{item.join(", ")}</Text>
+
+                        <View style={styles.buttonRow}>
+                            <TouchableOpacity
+                                style={styles.editButton}
+                                onPress={() => handleEdit(index, item)}
+                            >
+                                <Text style={styles.buttonText}>編集</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.deleteButton}
+                                onPress={() => handleDelete(index)}
+                            >
+                                <Text style={styles.buttonText}>削除</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 )}
                 ListEmptyComponent={
@@ -129,6 +197,28 @@ const styles = StyleSheet.create({
     scoreDetail: {
         marginTop: 6,
         color: "#6B7280",
+    },
+    buttonRow: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        marginTop: 10,
+    },
+    editButton: {
+        backgroundColor: "#3B82F6",
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        marginRight: 8,
+    },
+    deleteButton: {
+        backgroundColor: "#EF4444",
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+    },
+    buttonText: {
+        color: "white",
+        fontWeight: "600",
     },
     center: {
         flex: 1,

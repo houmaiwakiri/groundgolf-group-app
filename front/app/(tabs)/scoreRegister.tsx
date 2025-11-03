@@ -1,105 +1,66 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    TextInput,
-    ScrollView,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ActivityIndicator,
+    View, Text, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { postScores } from "../../src/libs/api";
 
-export default function ScoreRegister() {
-    const [scores, setScores] = useState(Array(8).fill(""));
-    const [loading, setLoading] = useState(false);
+export default function ScoreInput({ navigation }: any) {
+    const router = useRouter();
+    const [strokes, setStrokes] = useState(Array(8).fill(""));
 
-    // TextInputを参照するための配列を作成
-    const inputRefs = useRef<TextInput[]>([]);
-
-    const handleChange = (text: string, index: number) => {
-        const newScores = [...scores];
-        newScores[index] = text.replace(/[^0-9]/g, "");
-        setScores(newScores);
-
-        // 2桁入力またはEnterで次の入力欄へ移動
-        if (text.length >= 2 && index < inputRefs.current.length - 1) {
-            inputRefs.current[index + 1]?.focus();
-        }
+    const handleChange = (index: number, value: string) => {
+        const newStrokes = [...strokes];
+        newStrokes[index] = value.replace(/[^0-9]/g, "");
+        setStrokes(newStrokes);
     };
 
-    const handleRegister = async () => {
-        if (scores.some((s) => s === "")) {
-            Alert.alert("入力エラー", "すべてのホールにスコアを入力してください。");
+    const handleSubmit = async () => {
+        const parsed = strokes.map((s) => parseInt(s, 10)).filter((n) => !isNaN(n));
+
+        if (parsed.length !== 8) {
+            Alert.alert("エラー", "8ホールすべてのスコアを入力してください。");
             return;
         }
 
-        const body = scores.map((s) => Number(s));
-        // lodingにtrueをセットすることで、ローディング中のアイコンを表示する。
-        setLoading(true);
         try {
-            await postScores(body);
-            Alert.alert("登録完了", "スコアを登録しました。");
-            setScores(Array(8).fill(""));
-            inputRefs.current[0]?.focus();
+            await postScores(parsed);
+            Alert.alert("登録完了", "スコアを登録しました。", [
+                {
+                    text: "OK",
+                    onPress: () => router.push("/(tabs)/scoreList"),
+                },
+            ]);
         } catch (err: any) {
             Alert.alert("エラー", err.message);
-        } finally {
-            // lodingにfalseをセットして、ローディング中のアイコンを非表示にする。
-            setLoading(false);
         }
     };
+
     return (
         <KeyboardAvoidingView
-            style={{ flex: 1 }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 60}
+            style={{ flex: 1 }}
         >
             <ScrollView contentContainerStyle={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.title}>スコア登録</Text>
-                </View>
+                <Text style={styles.title}>スコア入力（8ホール）</Text>
 
-                <View style={styles.form}>
-                    {scores.map((value, index) => (
-                        <View key={index} style={styles.inputRow}>
-                            <Text style={styles.label}>ホール {index + 1}</Text>
+                <View style={styles.grid}>
+                    {strokes.map((value, i) => (
+                        <View key={i} style={styles.cell}>
+                            <Text style={styles.label}>{i + 1}H</Text>
                             <TextInput
-                                ref={(ref) => {
-                                    if (ref) inputRefs.current[index] = ref;
-                                }}
-                                style={styles.input}
-                                keyboardType="number-pad"
-                                maxLength={2}
                                 value={value}
-                                onChangeText={(t) => handleChange(t, index)}
-                                placeholder="0"
-                                placeholderTextColor="#aaa"
-                                returnKeyType={index === 7 ? "done" : "next"}
-                                onSubmitEditing={() => {
-                                    if (index < inputRefs.current.length - 1) {
-                                        inputRefs.current[index + 1]?.focus();
-                                    }
-                                }}
+                                onChangeText={(text) => handleChange(i, text)}
+                                keyboardType="numeric"
+                                style={styles.input}
+                                maxLength={2}
+                                placeholder="打数"
                             />
                         </View>
                     ))}
                 </View>
 
-                <TouchableOpacity
-                    style={[styles.button, loading && styles.disabledButton]}
-                    onPress={handleRegister}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.buttonText}>登録する</Text>
-                    )}
-                </TouchableOpacity>
+                <Button title="登録" onPress={handleSubmit} />
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -107,71 +68,44 @@ export default function ScoreRegister() {
 
 const styles = StyleSheet.create({
     container: {
+        padding: 16,
+        backgroundColor: "#F9FAFB",
         flexGrow: 1,
-        backgroundColor: "#f9fafb",
-        paddingHorizontal: 20,
-        paddingTop: 50,
-        paddingBottom: 40,
-    },
-    header: {
-        marginBottom: 30,
-        borderBottomWidth: 1,
-        borderColor: "#e5e7eb",
-        paddingBottom: 8,
     },
     title: {
-        fontSize: 28,
+        fontSize: 20,
         fontWeight: "bold",
-        color: "#111827",
+        marginBottom: 16,
+        color: "#1F2937",
     },
-    form: {
-        marginBottom: 40,
-    },
-    inputRow: {
+    grid: {
         flexDirection: "row",
-        alignItems: "center",
+        flexWrap: "wrap",
         justifyContent: "space-between",
-        backgroundColor: "#fff",
-        borderRadius: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        marginBottom: 14,
+        marginBottom: 20,
+    },
+    cell: {
+        width: "48%",
+        marginBottom: 12,
+        backgroundColor: "white",
+        borderRadius: 10,
+        padding: 10,
         shadowColor: "#000",
         shadowOpacity: 0.05,
-        shadowRadius: 2,
-        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 3,
+        elevation: 2,
     },
     label: {
-        fontSize: 20,
         fontWeight: "600",
+        marginBottom: 6,
         color: "#374151",
     },
     input: {
-        backgroundColor: "#f3f4f6",
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        fontSize: 20,
-        width: 80,
+        borderWidth: 1,
+        borderColor: "#D1D5DB",
+        borderRadius: 6,
+        paddingVertical: 6,
         textAlign: "center",
-        color: "#111827",
-    },
-    button: {
-        backgroundColor: "#2563eb",
-        paddingVertical: 16,
-        borderRadius: 14,
-        alignItems: "center",
-        shadowColor: "#2563eb",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 20,
-        fontWeight: "700",
-    },
-    disabledButton: {
-        opacity: 0.6,
+        fontSize: 16,
     },
 });

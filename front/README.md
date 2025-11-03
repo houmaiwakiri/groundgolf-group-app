@@ -19,7 +19,6 @@ groundgolfgroupapp/
 │   │   ├─ home.tsx      # ホーム
 │   │   ├─ scores.tsx     # スコア登録
 │   │   ├─ score-list.tsx # スコア一覧
-│   │   ├─ team.tsx       # チーム
 │   │   └─ other.tsx      # その他
 │   ├─ components/        # 共通UIコンポーネント
 │   ├─ lib/               # APIクライアント / 認証処理 / 設定

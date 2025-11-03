@@ -38,15 +38,6 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="team"
-        options={{
-          title: "チーム",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="other"
         options={{
           title: "その他",

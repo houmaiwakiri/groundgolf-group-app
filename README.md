@@ -89,7 +89,7 @@ docker exec -it groundgolfgroupapp-db-1 bash
 
 ### バックエンド API
 
-[http://localhost:8080/scores](http://localhost:8080/scores)
+[http://localhost:80/scores](http://localhost:8080/scores)
 
 レスポンスが返却されれば成功。
 
@@ -100,13 +100,13 @@ docker exec -it groundgolfgroupapp-db-1 bash
 ### データ登録
 
 ```bash
-Invoke-RestMethod -Uri http://3.113.11.174:80/scores -Method Post -Body (@(3,4,5,2,3,4,3,4,2,3) | ConvertTo-Json -Compress) -ContentType "application/json"
+Invoke-RestMethod -Uri http://localhost:80/scores -Method Post -Body (@(3,4,5,2,3,4,3,4,2,3) | ConvertTo-Json -Compress) -ContentType "application/json"
 ```
 
 ### データ確認
 
 ```bash
-Invoke-RestMethod -Uri http://3.113.11.174:80/scores -Method Get | ConvertTo-Json
+Invoke-RestMethod -Uri http://localhost:80/scores -Method Get | ConvertTo-Json
 ```
 
 ---

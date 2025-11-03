@@ -1,35 +1,177 @@
-import React from "react";
-import { View, Button, StyleSheet, Text, Alert } from "react-native";
+import React, { useState, useRef } from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    ScrollView,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ActivityIndicator,
+} from "react-native";
+import { postScores } from "../../src/libs/api";
 
 export default function ScoreRegister() {
-    const handleRegister = async () => {
-        // TESTデータ
-        const body = [3, 4, 5, 2, 3, 4, 3, 4, 2, 3];
+    const [scores, setScores] = useState(Array(8).fill(""));
+    const [loading, setLoading] = useState(false);
 
-        try {
-            const res = await fetch("http://192.168.10.101:8080/scores", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            });
+    // TextInputを参照するための配列を作成
+    const inputRefs = useRef<TextInput[]>([]);
 
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-            const result = await res.json();
-            Alert.alert("登録成功", JSON.stringify(result, null, 2));
-        } catch (err: any) {
-            Alert.alert("エラー", err.message);
+    const handleChange = (text: string, index: number) => {
+        const newScores = [...scores];
+        newScores[index] = text.replace(/[^0-9]/g, "");
+        setScores(newScores);
+
+        // 2桁入力またはEnterで次の入力欄へ移動
+        if (text.length >= 2 && index < inputRefs.current.length - 1) {
+            inputRefs.current[index + 1]?.focus();
         }
     };
 
+    const handleRegister = async () => {
+        if (scores.some((s) => s === "")) {
+            Alert.alert("入力エラー", "すべてのホールにスコアを入力してください。");
+            return;
+        }
+
+        const body = scores.map((s) => Number(s));
+        // lodingにtrueをセットすることで、ローディング中のアイコンを表示する。
+        setLoading(true);
+        try {
+            await postScores(body);
+            Alert.alert("登録完了", "スコアを登録しました。");
+            setScores(Array(8).fill(""));
+            inputRefs.current[0]?.focus();
+        } catch (err: any) {
+            Alert.alert("エラー", err.message);
+        } finally {
+            // lodingにfalseをセットして、ローディング中のアイコンを非表示にする。
+            setLoading(false);
+        }
+    };
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>スコア登録</Text>
-            <Button title="登録する" onPress={handleRegister} />
-        </View>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 60}
+        >
+            <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>スコア登録</Text>
+                </View>
+
+                <View style={styles.form}>
+                    {scores.map((value, index) => (
+                        <View key={index} style={styles.inputRow}>
+                            <Text style={styles.label}>ホール {index + 1}</Text>
+                            <TextInput
+                                ref={(ref) => {
+                                    if (ref) inputRefs.current[index] = ref;
+                                }}
+                                style={styles.input}
+                                keyboardType="number-pad"
+                                maxLength={2}
+                                value={value}
+                                onChangeText={(t) => handleChange(t, index)}
+                                placeholder="0"
+                                placeholderTextColor="#aaa"
+                                returnKeyType={index === 7 ? "done" : "next"}
+                                onSubmitEditing={() => {
+                                    if (index < inputRefs.current.length - 1) {
+                                        inputRefs.current[index + 1]?.focus();
+                                    }
+                                }}
+                            />
+                        </View>
+                    ))}
+                </View>
+
+                <TouchableOpacity
+                    style={[styles.button, loading && styles.disabledButton]}
+                    onPress={handleRegister}
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.buttonText}>登録する</Text>
+                    )}
+                </TouchableOpacity>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: "center", alignItems: "center" },
-    title: { fontSize: 20, marginBottom: 20 },
+    container: {
+        flexGrow: 1,
+        backgroundColor: "#f9fafb",
+        paddingHorizontal: 20,
+        paddingTop: 50,
+        paddingBottom: 40,
+    },
+    header: {
+        marginBottom: 30,
+        borderBottomWidth: 1,
+        borderColor: "#e5e7eb",
+        paddingBottom: 8,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: "bold",
+        color: "#111827",
+    },
+    form: {
+        marginBottom: 40,
+    },
+    inputRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        marginBottom: 14,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 1 },
+    },
+    label: {
+        fontSize: 20,
+        fontWeight: "600",
+        color: "#374151",
+    },
+    input: {
+        backgroundColor: "#f3f4f6",
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        fontSize: 20,
+        width: 80,
+        textAlign: "center",
+        color: "#111827",
+    },
+    button: {
+        backgroundColor: "#2563eb",
+        paddingVertical: 16,
+        borderRadius: 14,
+        alignItems: "center",
+        shadowColor: "#2563eb",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 20,
+        fontWeight: "700",
+    },
+    disabledButton: {
+        opacity: 0.6,
+    },
 });

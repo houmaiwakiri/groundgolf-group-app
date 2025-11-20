@@ -24,7 +24,7 @@ services:
 
   # db:
   #   image: mysql:8.3
-  #   restart: always
+  #   restart: no
   #   environment:
   #     MYSQL_DATABASE: appdb
   #     MYSQL_USER: appuser

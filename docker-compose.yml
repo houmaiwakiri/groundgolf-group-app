@@ -6,8 +6,10 @@ services:
       - "19006:19006"
     volumes:
       - ./front:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
     command: npx expo start --tunnel --port 19006
 
   # ECS&MYSQL(EC2)で検証中

@@ -1,19 +1,13 @@
-# ベースイメージ
 FROM node:22
 
-# 作業ディレクトリ
 WORKDIR /app
 
 # package.json / package-lock.json をコピーして依存インストール
 COPY package*.json ./
 RUN npm install
 
-# ソースコードコピー
-COPY . .
-
 # Expo CLI をグローバルインストール
-RUN npm install -g expo-cli
-RUN npm install -g @expo/ngrok
+RUN npm install -g expo-cli @expo/ngrok
 
-# 開発用コマンド（Webモードで起動）
-# CMD ["npm", "run", "web"]
+# node_modules はコンテナ内専用にする
+VOLUME ["/app/node_modules"]

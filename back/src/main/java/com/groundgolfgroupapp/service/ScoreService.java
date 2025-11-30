@@ -5,36 +5,53 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.groundgolfgroupapp.entity.Score;
+import com.groundgolfgroupapp.entity.User;
 import com.groundgolfgroupapp.repository.ScoreRepository;
+import com.groundgolfgroupapp.repository.UserRepository;
 
 @Service
 public class ScoreService {
 
-    private final ScoreRepository repository;
+    private final ScoreRepository scoreRepository;
+    private final UserRepository userRepository;
 
-    public ScoreService(ScoreRepository repository) {
-        this.repository = repository;
+    public ScoreService(ScoreRepository scoreRepository, UserRepository userRepository) {
+        this.scoreRepository = scoreRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Score> getAllScores() {
-        return repository.findAll();
+        return scoreRepository.findAll();
     }
 
-    public Score registerScore(List<Integer> strokes) {
-        Score score = new Score(strokes);
-        return repository.save(score);
+    public List<Score> getScoresByUser(String userId) {
+        return scoreRepository.findByUserId(userId);
+    }
+
+    public Score registerScore(List<Integer> strokes, String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseGet(() -> {
+                    User newUser = new User(userId, userId, null);
+                    return userRepository.save(newUser);
+                });
+
+        Score score = new Score();
+        score.setStrokes(strokes);
+        score.setUser(user);
+
+        return scoreRepository.save(score);
     }
 
     public void deleteScore(Long id) {
-        repository.deleteById(id);
+        scoreRepository.deleteById(id);
     }
 
     public Score updateScore(Long id, List<Integer> strokes) {
-        Score score = repository.findById(id)
+        Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("指定されたIDのスコアが存在しません: " + id));
 
         score.setStrokes(strokes);
-        return repository.save(score);
+        return scoreRepository.save(score);
     }
-
 }

@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 // JavaのクラスA:テーブルAのように1対1で対応するJPAの考え方
 
@@ -21,6 +23,10 @@ public class Score {
     // score_strokesというテーブルが自動で作成される
     @ElementCollection
     private List<Integer> strokes;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Score() {
         // デフォルトコンストラクタ
@@ -47,4 +53,13 @@ public class Score {
     public void setStrokes(List<Integer> strokes) {
         this.strokes = strokes;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 }

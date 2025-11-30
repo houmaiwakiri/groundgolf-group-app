@@ -23,12 +23,6 @@ export default function HomeScreen() {
                         <Text style={styles.tileText}>スコア一覧</Text>
                     </TouchableOpacity>
                 </Link>
-
-                <Link href="/team" asChild>
-                    <TouchableOpacity style={styles.tile}>
-                        <Text style={styles.tileText}>チーム</Text>
-                    </TouchableOpacity>
-                </Link>
             </View>
         </ScrollView>
     );

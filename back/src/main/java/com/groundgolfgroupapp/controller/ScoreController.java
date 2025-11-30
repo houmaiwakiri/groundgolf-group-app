@@ -1,7 +1,6 @@
 package com.groundgolfgroupapp.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.groundgolfgroupapp.dto.ScoreResponseDto;
 import com.groundgolfgroupapp.entity.Score;
 import com.groundgolfgroupapp.service.ScoreService;
 
@@ -20,32 +19,33 @@ import com.groundgolfgroupapp.service.ScoreService;
 @RequestMapping("/scores")
 public class ScoreController {
 
-    private final ScoreService service;
+    private final ScoreService scoreService;
 
-    public ScoreController(ScoreService service) {
-        this.service = service;
+    public ScoreController(ScoreService scoreService) {
+        this.scoreService = scoreService;
     }
 
-    @PostMapping
-    public Score register(@RequestBody List<Integer> strokes) {
-        return service.registerScore(strokes);
-    }
-
+    // ユーザー単位のスコア取得
     @GetMapping
-    public List<ScoreResponseDto> list() {
-        return service.getAllScores()
-                .stream()
-                .map(ScoreResponseDto::new) // ← DTOに変換
-                .collect(Collectors.toList());
+    public List<Score> getScores(@RequestParam String userId) {
+        return scoreService.getScoresByUser(userId);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deleteScore(id);
+    // スコア登録
+    @PostMapping
+    public Score registerScore(@RequestParam String userId, @RequestBody List<Integer> strokes) {
+        return scoreService.registerScore(strokes, userId);
     }
 
+    // スコア更新
     @PutMapping("/{id}")
-    public Score update(@PathVariable Long id, @RequestBody List<Integer> strokes) {
-        return service.updateScore(id, strokes);
+    public Score updateScore(@PathVariable Long id, @RequestBody List<Integer> strokes) {
+        return scoreService.updateScore(id, strokes);
+    }
+
+    // スコア削除
+    @DeleteMapping("/{id}")
+    public void deleteScore(@PathVariable Long id) {
+        scoreService.deleteScore(id);
     }
 }

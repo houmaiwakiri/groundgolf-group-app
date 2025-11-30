@@ -2,12 +2,12 @@ FROM node:22
 
 WORKDIR /app
 
-# package.json / package-lock.json をコピーして依存インストール
 COPY package*.json ./
 RUN npm install
 
-# Expo CLI をグローバルインストール
-RUN npm install -g expo-cli @expo/ngrok
+# ソースコードコピー
+COPY . .
 
-# node_modules はコンテナ内専用にする
-VOLUME ["/app/node_modules"]
+# Expo CLI をグローバルインストール
+RUN npm install -g expo-cli
+RUN npm install -g @expo/ngrok

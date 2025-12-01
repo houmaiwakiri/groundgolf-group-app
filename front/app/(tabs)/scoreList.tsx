@@ -5,6 +5,7 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { getScores, deleteScore } from "../../src/libs/api";
+import { useAuth } from "../../src/libs/auth";
 
 type Score = {
     id: number;
@@ -13,15 +14,17 @@ type Score = {
 
 export default function ScoreList() {
     const router = useRouter();
+    const { userId } = useAuth();
     const [scores, setScores] = useState<Score[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchScores = useCallback(async () => {
+        if (!userId) return;
         try {
             setError(null);
-            const data = await getScores();
+            const data = await getScores(userId);
             setScores(data);
         } catch (err: any) {
             setError(err.message);
@@ -29,7 +32,7 @@ export default function ScoreList() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, []);
+    }, [userId]);
 
     useFocusEffect(
         useCallback(() => {
@@ -38,6 +41,7 @@ export default function ScoreList() {
     );
 
     const handleDelete = (scoreId: number) => {
+        if (!userId) return;
         Alert.alert("削除確認", "このスコアを削除しますか？", [
             { text: "キャンセル", style: "cancel" },
             {
@@ -45,7 +49,7 @@ export default function ScoreList() {
                 style: "destructive",
                 onPress: async () => {
                     try {
-                        await deleteScore(scoreId);
+                        await deleteScore(userId, scoreId);
                         fetchScores();
                     } catch (err: any) {
                         Alert.alert("エラー", err.message);

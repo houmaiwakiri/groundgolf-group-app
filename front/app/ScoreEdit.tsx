@@ -4,6 +4,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { updateScore } from "../src/libs/api";
+import { useAuth } from "../src/libs/auth";
 
 export default function ScoreEdit() {
     const router = useRouter();
@@ -11,6 +12,7 @@ export default function ScoreEdit() {
     const initialScores = JSON.parse(strokes || "[]") as number[];
 
     const [scores, setScores] = useState<number[]>(initialScores);
+    const { userId } = useAuth();
 
     const handleChange = (index: number, value: string) => {
         const newScores = [...scores];
@@ -21,7 +23,7 @@ export default function ScoreEdit() {
 
     const handleSubmit = async () => {
         try {
-            await updateScore(Number(id), scores);
+            await updateScore(String(userId), Number(id), scores);
             Alert.alert("更新完了", "スコアを更新しました。", [
                 { text: "OK", onPress: () => router.back() },
             ]);
@@ -73,6 +75,7 @@ export default function ScoreEdit() {
         </KeyboardAvoidingView>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

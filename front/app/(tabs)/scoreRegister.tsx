@@ -4,9 +4,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { postScores } from "../../src/libs/api";
+import { useAuth } from "../../src/libs/auth";
 
-export default function ScoreInput({ navigation }: any) {
+export default function ScoreInput() {
     const router = useRouter();
+    const { userId } = useAuth();
     const [strokes, setStrokes] = useState(Array(8).fill(""));
 
     const handleChange = (index: number, value: string) => {
@@ -16,6 +18,11 @@ export default function ScoreInput({ navigation }: any) {
     };
 
     const handleSubmit = async () => {
+        if (!userId) {
+            Alert.alert("エラー", "ユーザーIDが取得できません。再ログインしてください。");
+            return;
+        }
+
         const parsed = strokes.map((s) => parseInt(s, 10)).filter((n) => !isNaN(n));
 
         if (parsed.length !== 8) {
@@ -24,7 +31,7 @@ export default function ScoreInput({ navigation }: any) {
         }
 
         try {
-            await postScores(parsed);
+            await postScores(userId, parsed);
             Alert.alert("登録完了", "スコアを登録しました。", [
                 {
                     text: "OK",

@@ -13,7 +13,7 @@ export default function HomeScreen() {
 
             <View style={styles.tileContainer}>
                 <Link href="/scoreRegister" asChild>
-                    <TouchableOpacity style={[styles.tile]}>
+                    <TouchableOpacity style={styles.tile}>
                         <Text style={styles.tileText}>スコア登録</Text>
                     </TouchableOpacity>
                 </Link>
@@ -21,6 +21,11 @@ export default function HomeScreen() {
                 <Link href="/scoreList" asChild>
                     <TouchableOpacity style={styles.tile}>
                         <Text style={styles.tileText}>スコア一覧</Text>
+                    </TouchableOpacity>
+                </Link>
+                <Link href="/stats" asChild>
+                    <TouchableOpacity style={styles.tile}>
+                        <Text style={styles.tileText}>統計情報</Text>
                     </TouchableOpacity>
                 </Link>
             </View>

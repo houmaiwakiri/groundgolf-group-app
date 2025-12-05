@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-    View,
-    Text,
-    ActivityIndicator,
-    StyleSheet,
-    ScrollView,
-    RefreshControl
-} from "react-native";
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import { useAuth } from "../../src/libs/auth";
 import { getScoreStats } from "../../src/libs/api";
 
@@ -36,6 +29,7 @@ export default function StatsScreen() {
         }
         setLoading(false);
     };
+    console.log(stats);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -47,6 +41,7 @@ export default function StatsScreen() {
         loadStats();
     }, []);
 
+    // ローディング中
     if (loading) {
         return (
             <View style={styles.center}>
@@ -55,6 +50,7 @@ export default function StatsScreen() {
         );
     }
 
+    // statsが取得できない場合の画面出力
     if (!stats) {
         return (
             <View style={styles.center}>

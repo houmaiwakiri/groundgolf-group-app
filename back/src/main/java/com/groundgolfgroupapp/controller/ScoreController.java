@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.groundgolfgroupapp.dto.ScoreStats;
 import com.groundgolfgroupapp.entity.Score;
 import com.groundgolfgroupapp.service.ScoreService;
 
@@ -47,5 +48,12 @@ public class ScoreController {
     @DeleteMapping("/{id}")
     public void deleteScore(@PathVariable Long id) {
         scoreService.deleteScore(id);
+    }
+
+    // 統計情報取得
+    @GetMapping("/stats")
+    public ScoreStats getStats(@RequestParam String userId,
+            @RequestParam(required = false) Integer latest) {
+        return scoreService.getScoreStats(userId, latest);
     }
 }

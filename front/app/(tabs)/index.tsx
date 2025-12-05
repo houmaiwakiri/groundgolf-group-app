@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { Link } from "expo-router";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
     return (
@@ -13,7 +13,7 @@ export default function HomeScreen() {
 
             <View style={styles.tileContainer}>
                 <Link href="/scoreRegister" asChild>
-                    <TouchableOpacity style={[styles.tile, styles.primaryTile]}>
+                    <TouchableOpacity style={[styles.tile]}>
                         <Text style={styles.tileText}>スコア登録</Text>
                     </TouchableOpacity>
                 </Link>

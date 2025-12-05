@@ -10,20 +10,33 @@ export type Score = {
     strokes: number[];
 };
 
-export async function getScores(): Promise<Score[]> {
-    const res = await fetchTimeout(`${BASE_URL}/scores`);
+export type ScoreStats = {
+    averageScore: number;
+    maxScore: number;
+    minScore: number;
+    holeAverages: number[];
+    totalRounds: number;
+};
+
+/**
+ * ユーザーのスコアを取得
+ */
+export async function getScores(userId: string): Promise<Score[]> {
+    const res = await fetchTimeout(`${BASE_URL}/scores?userId=${userId}`);
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
 
     const data = await res.json();
-
     return data.map((item: any) => ({
         id: Number(item.id),
         strokes: Array.isArray(item.strokes) ? item.strokes.map(Number) : [],
     }));
 }
 
-export async function postScores(scores: number[]): Promise<Score> {
-    const res = await fetchTimeout(`${BASE_URL}/scores`, {
+/**
+ * スコア登録
+ */
+export async function postScores(userId: string, scores: number[]): Promise<Score> {
+    const res = await fetchTimeout(`${BASE_URL}/scores?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(scores),
@@ -32,8 +45,11 @@ export async function postScores(scores: number[]): Promise<Score> {
     return res.json();
 }
 
-export async function updateScore(id: number, scores: number[]): Promise<void> {
-    const res = await fetchTimeout(`${BASE_URL}/scores/${id}`, {
+/**
+ * スコア更新
+ */
+export async function updateScore(userId: string, id: number, scores: number[]): Promise<void> {
+    const res = await fetchTimeout(`${BASE_URL}/scores/${id}?userId=${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(scores),
@@ -41,9 +57,38 @@ export async function updateScore(id: number, scores: number[]): Promise<void> {
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
 }
 
-export async function deleteScore(id: number): Promise<void> {
-    const res = await fetchTimeout(`${BASE_URL}/scores/${id}`, {
+/**
+ * スコア削除
+ */
+export async function deleteScore(userId: string, id: number): Promise<void> {
+    const res = await fetchTimeout(`${BASE_URL}/scores/${id}?userId=${userId}`, {
         method: "DELETE",
     });
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+}
+
+/**
+ * 統計情報取得
+ * @param userId ユーザーID
+ * @param latest 最新 N ラウンド（任意）
+ */
+export async function getScoreStats(userId: string, latest?: number): Promise<ScoreStats> {
+    const url = latest
+        ? `${BASE_URL}/scores/stats?userId=${userId}&latest=${latest}`
+        : `${BASE_URL}/scores/stats?userId=${userId}`;
+
+    const res = await fetchTimeout(url);
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+
+    const data = await res.json();
+
+    return {
+        averageScore: Number(data.averageScore) || 0,
+        maxScore: Number(data.maxScore) || 0,
+        minScore: Number(data.minScore) || 0,
+        holeAverages: Array.isArray(data.holeAverages)
+            ? data.holeAverages.map(Number)
+            : [],
+        totalRounds: Number(data.totalRounds) || 0,
+    };
 }

@@ -70,7 +70,7 @@ export async function deleteScore(userId: string, id: number): Promise<void> {
 /**
  * 統計情報取得
  * @param userId ユーザーID
- * @param latest 最新 N ラウンド（任意）
+ * @param latest 過去〇ラウンド分（任意）
  */
 export async function getScoreStats(userId: string, latest?: number): Promise<ScoreStats> {
     const url = latest

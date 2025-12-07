@@ -57,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await SecureStore.setItemAsync("refresh_token", newTokens.refresh_token);
         }
 
+        // user_idを抜き出して保存
         const userId = getUserIdFromToken(newTokens.id_token);
         if (!userId) throw new Error("userId が取得できません");
 
@@ -77,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
+        // 他でuseAuth()して使う中身
         <AuthContext.Provider
             value={{
                 isAuthenticated: !!tokens,
@@ -95,5 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export function useAuth() {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+    // 他でuseAuth()を呼ぶと、ctxの中身が使えるようになる。
     return ctx;
 }

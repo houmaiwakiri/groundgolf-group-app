@@ -22,6 +22,7 @@ public class ScoreController {
 
     private final ScoreService scoreService;
 
+    // コンストラクタでサービス注入
     public ScoreController(ScoreService scoreService) {
         this.scoreService = scoreService;
     }
@@ -51,9 +52,9 @@ public class ScoreController {
     }
 
     // 統計情報取得
+    // latest=統計情報の対象期間
     @GetMapping("/stats")
-    public ScoreStats getStats(@RequestParam String userId,
-            @RequestParam(required = false) Integer latest) {
+    public ScoreStats getStats(@RequestParam String userId, @RequestParam(required = false) Integer latest) {
         return scoreService.getScoreStats(userId, latest);
     }
 }

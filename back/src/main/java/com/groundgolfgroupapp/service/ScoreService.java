@@ -18,6 +18,7 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
 
+    // コンストラクタ
     public ScoreService(ScoreRepository scoreRepository, UserRepository userRepository) {
         this.scoreRepository = scoreRepository;
         this.userRepository = userRepository;
@@ -32,14 +33,18 @@ public class ScoreService {
     }
 
     public Score registerScore(List<Integer> strokes, String userId) {
+
+        // ユーザーがいれば取得、いなければ作成
         User user = userRepository.findById(userId)
                 .orElseGet(() -> {
                     User newUser = new User(userId, userId, null);
                     return userRepository.save(newUser);
                 });
 
+        // スコア作成(Entityは毎回newする)
         Score score = new Score();
         score.setStrokes(strokes);
+        // 外部キー用にuseridをセットする。
         score.setUser(user);
 
         return scoreRepository.save(score);
@@ -50,6 +55,7 @@ public class ScoreService {
     }
 
     public Score updateScore(Long id, List<Integer> strokes) {
+        // findByIdは自動実装されており、Optional型なので、orElseThrowが使える
         Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("指定されたIDのスコアが存在しません: " + id));
 
@@ -78,7 +84,7 @@ public class ScoreService {
 
         int holeCount = scores.get(0).getStrokes().size();
         List<Double> holeAverages = Arrays.stream(new double[holeCount])
-                .map(i -> 0) // placeholder
+                .map(i -> 0)
                 .boxed()
                 .collect(Collectors.toList());
 

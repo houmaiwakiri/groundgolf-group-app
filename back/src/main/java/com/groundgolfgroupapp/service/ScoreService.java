@@ -18,6 +18,7 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
 
+    // コンストラクタ
     public ScoreService(ScoreRepository scoreRepository, UserRepository userRepository) {
         this.scoreRepository = scoreRepository;
         this.userRepository = userRepository;
@@ -32,14 +33,18 @@ public class ScoreService {
     }
 
     public Score registerScore(List<Integer> strokes, String userId) {
+
+        // ユーザーがいれば取得、いなければ作成
         User user = userRepository.findById(userId)
                 .orElseGet(() -> {
                     User newUser = new User(userId, userId, null);
                     return userRepository.save(newUser);
                 });
 
+        // スコア作成(Entityは毎回newする)
         Score score = new Score();
         score.setStrokes(strokes);
+        // 外部キー用にuseridをセットする。
         score.setUser(user);
 
         return scoreRepository.save(score);
@@ -50,17 +55,29 @@ public class ScoreService {
     }
 
     public Score updateScore(Long id, List<Integer> strokes) {
+        // findByIdは自動実装されており、Optional型なので、orElseThrowが使える
         Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("指定されたIDのスコアが存在しません: " + id));
 
+        // Entityのセッター呼び出し
         score.setStrokes(strokes);
         return scoreRepository.save(score);
     }
 
-    // 統計情報取得
+    // 統計情報取得(latest=過去?件)
     public ScoreStats getScoreStats(String userId, Integer latest) {
+        // Listは、型ではなくインターフェイス
+        // 同じ型のオブジェクトを順番に入れる箱。オブジェクトへの参照が入っている。
+
+        // List型(entity.Score)の変数を定義
         List<Score> scores = getScoresByUser(userId);
+        // scoresの実体は、Scoreエンティティの参照(ArrayList<Score>)など、Listインターフェイスを実装したクラスが入っている
+        // よって、要素数取得のscores.size()が実行できる
         if (latest != null && scores.size() > latest) {
+            // subList(開始index,終了index)
+            // ここで、参照先を変えている
+            // 旧scores：[ Score1, Score2, Score3, Score4, Score5 ]
+            // 新scores：subListビュー [ Score3, Score4, Score5 ]
             scores = scores.subList(scores.size() - latest, scores.size());
         }
 
@@ -78,7 +95,7 @@ public class ScoreService {
 
         int holeCount = scores.get(0).getStrokes().size();
         List<Double> holeAverages = Arrays.stream(new double[holeCount])
-                .map(i -> 0) // placeholder
+                .map(i -> 0)
                 .boxed()
                 .collect(Collectors.toList());
 

@@ -50,12 +50,13 @@ public class Score {
         return strokes;
     }
 
-    public void setStrokes(List<Integer> strokes) {
-        this.strokes = strokes;
-    }
-
     public User getUser() {
         return user;
+    }
+
+    // thisのプロパティにsetすることで、JPAがDBに保存する値を見つけることができる
+    public void setStrokes(List<Integer> strokes) {
+        this.strokes = strokes;
     }
 
     public void setUser(User user) {

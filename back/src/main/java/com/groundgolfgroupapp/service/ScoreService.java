@@ -1,8 +1,7 @@
 package com.groundgolfgroupapp.service;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -17,6 +16,9 @@ public class ScoreService {
 
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
+    // Service、Repositoryなどは、シングルトンで生成される。
+    // なので、下記のようなプロパティを定義すると、ユーザー間で同じ値を見てしまう
+    // private double averageScore;
 
     // コンストラクタ
     public ScoreService(ScoreRepository scoreRepository, UserRepository userRepository) {
@@ -81,8 +83,14 @@ public class ScoreService {
             scores = scores.subList(scores.size() - latest, scores.size());
         }
 
+        // 今更だけどPHPとは違って、ここで型定義できる
+        // steamに変換する(ASTERIAのstreamと同じ?)
         double averageScore = scores.stream()
+                // sは、scoresの中の1要素。さらにstream化する。
+                // さらに、Integerをintに変換して、SUMする
                 .mapToInt(s -> s.getStrokes().stream().mapToInt(Integer::intValue).sum())
+                // streamで出力されるため、そのストリームの平均を取得する
+                // averageが値を返せない場合、0を返却する
                 .average().orElse(0);
 
         int maxScore = scores.stream()
@@ -93,19 +101,19 @@ public class ScoreService {
                 .mapToInt(s -> s.getStrokes().stream().mapToInt(Integer::intValue).sum())
                 .min().orElse(0);
 
+        // ホール数取得
         int holeCount = scores.get(0).getStrokes().size();
-        List<Double> holeAverages = Arrays.stream(new double[holeCount])
-                .map(i -> 0)
-                .boxed()
-                .collect(Collectors.toList());
+        // 配列ベースのListを作り出す。容量(capacity)を指定する。sizeは0。
+        List<Double> holeAverages = new ArrayList<>(holeCount);
 
+        // ループを回してホールごとの平均値をholeAveragesに代入していく
         for (int i = 0; i < holeCount; i++) {
-            final int idx = i;
+            int idx = i;
             double avg = scores.stream()
                     .mapToInt(s -> s.getStrokes().get(idx))
                     .average()
                     .orElse(0);
-            holeAverages.set(i, avg);
+            holeAverages.add(avg);
         }
 
         return new ScoreStats(averageScore, maxScore, minScore, holeAverages, scores.size());

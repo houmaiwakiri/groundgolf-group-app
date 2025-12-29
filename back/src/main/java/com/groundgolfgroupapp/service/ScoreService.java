@@ -71,8 +71,12 @@ public class ScoreService {
         // Listは、型ではなくインターフェイス
         // 同じ型のオブジェクトを順番に入れる箱。オブジェクトへの参照が入っている。
 
+        // 全ラウンド取得
+        List<Score> allScores = getScoresByUser(userId);
+        int totalRounds = allScores.size();
+
         // List型(entity.Score)の変数を定義
-        List<Score> scores = getScoresByUser(userId);
+        List<Score> scores = allScores;
         // scoresの実体は、Scoreエンティティの参照(ArrayList<Score>)など、Listインターフェイスを実装したクラスが入っている
         // よって、要素数取得のscores.size()が実行できる
         if (latest != null && scores.size() > latest) {
@@ -81,6 +85,11 @@ public class ScoreService {
             // 旧scores：[ Score1, Score2, Score3, Score4, Score5 ]
             // 新scores：subListビュー [ Score3, Score4, Score5 ]
             scores = scores.subList(scores.size() - latest, scores.size());
+        }
+
+        // データが無い場合は0埋めで返却
+        if (scores.isEmpty()) {
+            return new ScoreStats(0, 0, 0, List.of(), totalRounds);
         }
 
         // 今更だけどPHPとは違って、ここで型定義できる
@@ -116,7 +125,7 @@ public class ScoreService {
             holeAverages.add(avg);
         }
 
-        return new ScoreStats(averageScore, maxScore, minScore, holeAverages, scores.size());
+        return new ScoreStats(averageScore, maxScore, minScore, holeAverages, totalRounds);
     }
 
 }

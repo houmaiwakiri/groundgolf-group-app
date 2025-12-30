@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import {
-    View, Text, TextInput, Button, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert,
+    View,
+    Text,
+    TextInput,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Alert,
+    TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { postScores } from "../../src/libs/api";
@@ -49,7 +57,8 @@ export default function ScoreInput() {
             style={{ flex: 1 }}
         >
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.title}>スコア入力（8ホール）</Text>
+                <Text style={styles.title}>スコア入力</Text>
+                <Text style={styles.subtitle}>8ホール分を入力</Text>
 
                 <View style={styles.grid}>
                     {strokes.map((value, i) => (
@@ -58,17 +67,23 @@ export default function ScoreInput() {
                             <TextInput
                                 value={value}
                                 onChangeText={(text) => handleChange(i, text)}
-                                keyboardType="numeric"
+                                keyboardType="number-pad"
                                 style={styles.input}
                                 maxLength={2}
-                                placeholder="打数"
+                                placeholder="0"
+                                placeholderTextColor="#9CA3AF"
                             />
                         </View>
                     ))}
                 </View>
-
-                <Button title="登録" onPress={handleSubmit} />
             </ScrollView>
+
+            {/* 登録ボタンを下に固定 */}
+            <View style={styles.footer}>
+                <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                    <Text style={styles.submitText}>登録</Text>
+                </TouchableOpacity>
+            </View>
         </KeyboardAvoidingView>
     );
 }
@@ -78,41 +93,74 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: "#F9FAFB",
         flexGrow: 1,
+        paddingBottom: 120,
     },
     title: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: "bold",
-        marginBottom: 16,
-        color: "#1F2937",
+        color: "#111827",
+        marginBottom: 4,
+    },
+    subtitle: {
+        fontSize: 14,
+        color: "#6B7280",
+        marginBottom: 20,
     },
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
-        marginBottom: 20,
     },
     cell: {
         width: "48%",
-        marginBottom: 12,
         backgroundColor: "white",
-        borderRadius: 10,
-        padding: 10,
+        borderRadius: 14,
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        marginBottom: 14,
+        alignItems: "center",
         shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 2,
+        shadowOpacity: 0.08,
+        shadowRadius: 5,
+        elevation: 3,
     },
     label: {
-        fontWeight: "600",
-        marginBottom: 6,
+        fontSize: 16,
+        fontWeight: "700",
         color: "#374151",
+        marginBottom: 6,
     },
     input: {
+        width: "100%",
         borderWidth: 1,
-        borderColor: "#D1D5DB",
-        borderRadius: 6,
-        paddingVertical: 6,
+        borderColor: "#E5E7EB",
+        borderRadius: 10,
+        paddingVertical: 14,
+        fontSize: 28,
+        fontWeight: "800",
         textAlign: "center",
-        fontSize: 16,
+        color: "#1F2937",
+        backgroundColor: "#F9FAFB",
+    },
+    footer: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 16,
+        backgroundColor: "white",
+        borderTopWidth: 1,
+        borderTopColor: "#E5E7EB",
+    },
+    submitButton: {
+        backgroundColor: "#2563EB",
+        paddingVertical: 16,
+        borderRadius: 14,
+        alignItems: "center",
+    },
+    submitText: {
+        color: "white",
+        fontSize: 18,
+        fontWeight: "800",
     },
 });

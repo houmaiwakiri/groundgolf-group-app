@@ -10,12 +10,12 @@ export type Score = {
     strokes: number[];
 };
 
-export type ScoreStats = {
-    averageScore: number;
-    maxScore: number;
-    minScore: number;
+type ScoreStats = {
+    average: number;
+    max: number;
+    min: number;
     holeAverages: number[];
-    totalRounds: number;
+    rounds: number;
 };
 
 /**
@@ -83,12 +83,12 @@ export async function getScoreStats(userId: string, latest?: number): Promise<Sc
     const data = await res.json();
 
     return {
-        averageScore: Number(data.averageScore) || 0,
-        maxScore: Number(data.maxScore) || 0,
-        minScore: Number(data.minScore) || 0,
+        average: Number(data.average) || 0,
+        max: Number(data.max) || 0,
+        min: Number(data.min) || 0,
         holeAverages: Array.isArray(data.holeAverages)
             ? data.holeAverages.map(Number)
             : [],
-        totalRounds: Number(data.totalRounds) || 0,
+        rounds: Number(data.rounds) || 0,
     };
 }

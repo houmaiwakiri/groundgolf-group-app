@@ -27,6 +27,7 @@ public class ScoreService {
     }
 
     public List<Score> getAllScores() {
+        // 登録済みのスコアを全件取得する。
         return scoreRepository.findAll();
     }
 

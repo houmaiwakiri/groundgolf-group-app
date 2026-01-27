@@ -10,10 +10,17 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
+/**
+ * S3Client の設定クラス。
+ * ローカルの MinIO を利用する前提でエンドポイントを指定しています。
+ */
 @Configuration
 public class S3Config {
 
-    // テスト用
+    /**
+     * S3Client の Bean 定義。
+     * @return MinIO 用の S3Client
+     */
     @Bean
     public S3Client s3client() {
         return S3Client.builder()

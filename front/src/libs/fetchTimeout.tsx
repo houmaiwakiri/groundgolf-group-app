@@ -1,10 +1,12 @@
 /**
- * fetchにタイムアウト機能とリトライ機能を追加した関数。
+ * fetch に「タイムアウト」と「リトライ」を追加したユーティリティ関数。
+ * - タイムアウトは Promise.race で擬似的に実現
+ * - エラー時は指定回数だけ再試行する
  * @param url リクエスト先の URL
- * @param options fetch のオプション(method,headers,bodyなど)
- * @param timeout タイムアウト時間(ミリ秒)
- * @param retries リトライ回数。デフォルトは2回
- * @returns Promise<Response> - 成功した場合は fetch の Response、失敗した場合は reject
+ * @param options fetch のオプション（method/headers/body など）
+ * @param timeout タイムアウト時間（ミリ秒）
+ * @param retries リトライ回数。デフォルトは 2 回
+ * @returns 成功時は fetch の Response を返す Promise
  */
 export async function fetchTimeout(
     url: string,
@@ -12,10 +14,13 @@ export async function fetchTimeout(
     timeout: number = 5000,
     retries: number = 2
 ): Promise<Response> {
-    // 内部関数で再帰的にリトライ処理
+    /**
+     * 残りリトライ回数を受け取り、必要なら再帰的に呼び出す内部関数。
+     * @param remainingRetries 残りのリトライ回数
+     */
     const attempt = async (remainingRetries: number): Promise<Response> => {
         try {
-            // Promise.raceでタイムアウトとfetchを競争させる
+            // Promise.race で「タイムアウト」と「fetch」を競争させる。
             return await Promise.race([
                 fetch(url, options),
                 new Promise<never>((_, reject) =>
@@ -24,7 +29,7 @@ export async function fetchTimeout(
             ]);
         } catch (err) {
             if (remainingRetries > 0) {
-                // 残りリトライがある場合は再試行
+                // 残りリトライがある場合は再試行する。
                 return attempt(remainingRetries - 1);
             } else {
                 throw err;

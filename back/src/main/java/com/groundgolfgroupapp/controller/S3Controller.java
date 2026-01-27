@@ -12,18 +12,33 @@ import com.groundgolfgroupapp.service.S3Service;
 
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+/**
+ * S3 へのアップロード API を提供するコントローラー。
+ * バケット名とファイルを受け取り、S3 に保存します。
+ */
 @RestController
 @RequestMapping("/s3")
 public class S3Controller {
 
-    // S3操作用のサービスクラス
+    /**
+     * S3 操作用のサービス。
+     */
     private final S3Service s3;
 
-    // コンストラクタでS3操作用のサービスクラスを注入する
+    /**
+     * S3Service を DI で受け取るコンストラクタ。
+     * @param s3Service S3 へのアップロード処理を行うサービス
+     */
     public S3Controller(S3Service s3Service) {
         this.s3 = s3Service;
     }
 
+    /**
+     * ファイルを S3 にアップロードします。
+     * @param bucket アップロード先バケット名
+     * @param file アップロード対象ファイル
+     * @return アップロード結果メッセージ
+     */
     @PostMapping("/upload")
     public String upload(
             @RequestParam("bucket") String bucket,

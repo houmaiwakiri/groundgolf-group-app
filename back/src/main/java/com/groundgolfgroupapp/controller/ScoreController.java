@@ -16,43 +16,71 @@ import com.groundgolfgroupapp.dto.ScoreStats;
 import com.groundgolfgroupapp.entity.Score;
 import com.groundgolfgroupapp.service.ScoreService;
 
+/**
+ * スコア関連の API を提供するコントローラー。
+ * CRUD と統計情報取得のエンドポイントをまとめています。
+ */
 @RestController
 @RequestMapping("/scores")
 public class ScoreController {
 
     private final ScoreService scoreService;
 
-    // コンストラクタでサービス注入
+    /**
+     * ScoreService を DI で受け取るコンストラクタ。
+     * @param scoreService スコア操作を担当するサービス
+     */
     public ScoreController(ScoreService scoreService) {
         this.scoreService = scoreService;
     }
 
-    // ユーザー単位のスコア取得
+    /**
+     * 指定ユーザーのスコア一覧を取得します。
+     * @param userId ユーザーID
+     * @return スコア一覧
+     */
     @GetMapping
     public List<Score> getScores(@RequestParam String userId) {
         return scoreService.getScoresByUser(userId);
     }
 
-    // スコア登録
+    /**
+     * スコアを登録します。
+     * @param userId ユーザーID
+     * @param strokes 各ホールの打数配列
+     * @return 登録されたスコア
+     */
     @PostMapping
     public Score registerScore(@RequestParam String userId, @RequestBody List<Integer> strokes) {
         return scoreService.registerScore(strokes, userId);
     }
 
-    // スコア更新
+    /**
+     * 既存スコアを更新します。
+     * @param id スコアID
+     * @param strokes 更新後の打数配列
+     * @return 更新後のスコア
+     */
     @PutMapping("/{id}")
     public Score updateScore(@PathVariable Long id, @RequestBody List<Integer> strokes) {
         return scoreService.updateScore(id, strokes);
     }
 
-    // スコア削除
+    /**
+     * スコアを削除します。
+     * @param id スコアID
+     */
     @DeleteMapping("/{id}")
     public void deleteScore(@PathVariable Long id) {
         scoreService.deleteScore(id);
     }
 
-    // 統計情報取得
-    // latest=統計情報の対象期間
+    /**
+     * スコア統計情報を取得します。
+     * @param userId ユーザーID
+     * @param latest 対象とする直近ラウンド数（任意）
+     * @return 平均・最大・最小などの統計情報
+     */
     @GetMapping("/stats")
     public ScoreStats getStats(@RequestParam String userId, @RequestParam(required = false) Integer latest) {
         return scoreService.getScoreStats(userId, latest);

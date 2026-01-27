@@ -10,20 +10,30 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-// JavaのクラスA:テーブルAのように1対1で対応するJPAの考え方
-
+/**
+ * スコア情報を保持するエンティティ。
+ * Java のクラスと DB テーブルを 1 対 1 で対応させる JPA の考え方を利用しています。
+ */
 @Entity // 「このクラスをテーブルとして扱う」という宣言
 public class Score {
 
-    @Id // 主キー
+    /**
+     * 主キー。DB 側で自動採番されます。
+     */
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 自動採番
     private Long id;
 
-    // 自動でリストをテーブルとして扱う宣言
-    // score_strokesというテーブルが自動で作成される
+    /**
+     * 各ホールの打数リスト。
+     * ElementCollection により、score_strokes テーブルが自動作成されます。
+     */
     @ElementCollection
     private List<Integer> strokes;
 
+    /**
+     * スコアの所有者（ユーザー）。
+     */
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

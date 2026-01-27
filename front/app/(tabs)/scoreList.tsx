@@ -1,6 +1,13 @@
 import React, { useState, useCallback } from "react";
 import {
-    View, Text, StyleSheet, ActivityIndicator, FlatList, RefreshControl, TouchableOpacity, Alert,
+    View,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    TouchableOpacity,
+    Alert,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -101,27 +108,38 @@ export default function ScoreList() {
                         }}
                     />
                 }
-                renderItem={({ item, index }) => (
-                    <View style={styles.scoreCard}>
-                        <Text style={styles.scoreTitle}>ラウンド {index + 1}</Text>
-                        <Text style={styles.scoreDetail}>{item.strokes.join(", ")}</Text>
+                renderItem={({ item, index }) => {
+                    const total = item.strokes.reduce((a, b) => a + b, 0);
 
-                        <View style={styles.buttonRow}>
-                            <TouchableOpacity
-                                style={styles.editButton}
-                                onPress={() => handleEdit(item)}
-                            >
-                                <Text style={styles.buttonText}>編集</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.deleteButton}
-                                onPress={() => handleDelete(item.id)}
-                            >
-                                <Text style={styles.buttonText}>削除</Text>
-                            </TouchableOpacity>
+                    return (
+                        <View style={styles.scoreCard}>
+                            {/* 上段：ラウンド名＋合計スコア */}
+                            <View style={styles.topRow}>
+                                <Text style={styles.scoreTitle}>ラウンド {index + 1}</Text>
+                                <Text style={styles.totalScore}>{total}</Text>
+                            </View>
+
+                            {/* 中段：各ホールスコア */}
+                            <Text style={styles.scoreDetail}>{item.strokes.join(" / ")}</Text>
+
+                            {/* 下段：操作ボタン */}
+                            <View style={styles.buttonRow}>
+                                <TouchableOpacity
+                                    style={styles.editButton}
+                                    onPress={() => handleEdit(item)}
+                                >
+                                    <Text style={styles.buttonText}>編集</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.deleteButton}
+                                    onPress={() => handleDelete(item.id)}
+                                >
+                                    <Text style={styles.buttonText}>削除</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                )}
+                    );
+                }}
                 ListEmptyComponent={
                     <Text style={styles.emptyText}>スコアが登録されていません</Text>
                 }
@@ -134,52 +152,61 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F9FAFB",
-        paddingHorizontal: 16,
-        paddingTop: 12,
+        paddingHorizontal: 14,
+        paddingTop: 10,
     },
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 12,
+        marginBottom: 10,
     },
     title: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: "bold",
         color: "#1F2937",
     },
     refreshButton: {
         backgroundColor: "#10B981",
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 10,
     },
     refreshText: {
         color: "white",
-        fontWeight: "600",
+        fontWeight: "700",
+        fontSize: 14,
     },
     scoreCard: {
         backgroundColor: "white",
-        borderRadius: 12,
-        padding: 12,
-        marginBottom: 10,
+        borderRadius: 14,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        marginBottom: 12,
         shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 2,
+        shadowOpacity: 0.07,
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    topRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     scoreTitle: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#374151",
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#111827",
+    },
+    totalScore: {
+        fontSize: 28,
+        fontWeight: "800",
+        color: "#2563EB",
     },
     scoreDetail: {
         marginTop: 6,
-        color: "#6B7280",
+        fontSize: 14,
+        color: "#4B5563",
     },
     buttonRow: {
         flexDirection: "row",
@@ -188,20 +215,21 @@ const styles = StyleSheet.create({
     },
     editButton: {
         backgroundColor: "#3B82F6",
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 10,
         marginRight: 8,
     },
     deleteButton: {
         backgroundColor: "#EF4444",
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 10,
     },
     buttonText: {
         color: "white",
-        fontWeight: "600",
+        fontWeight: "700",
+        fontSize: 14,
     },
     center: {
         flex: 1,
@@ -209,23 +237,26 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     reloadButton: {
-        marginTop: 10,
+        marginTop: 12,
         backgroundColor: "#3B82F6",
-        paddingVertical: 8,
-        paddingHorizontal: 14,
-        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+        borderRadius: 10,
     },
     reloadText: {
         color: "white",
-        fontWeight: "600",
+        fontWeight: "700",
+        fontSize: 15,
     },
     errorText: {
         color: "#DC2626",
         fontSize: 16,
+        fontWeight: "600",
     },
     emptyText: {
         textAlign: "center",
         color: "#9CA3AF",
-        marginTop: 20,
+        marginTop: 24,
+        fontSize: 16,
     },
 });

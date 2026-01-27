@@ -1,4 +1,7 @@
-// 認証中のアイコン
+/**
+ * 認証中など、処理待ちのときに表示するローディングインジケーター。
+ * 画面中央にスピナーを表示します。
+ */
 import { View, ActivityIndicator } from "react-native";
 
 export default function LoadingIndicator() {

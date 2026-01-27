@@ -4,11 +4,11 @@ import { useAuth } from "../../src/libs/auth";
 import { getScoreStats } from "../../src/libs/api";
 
 type ScoreStats = {
-    averageScore: number;
-    maxScore: number;
-    minScore: number;
+    average: number;
+    max: number;
+    min: number;
     holeAverages: number[];
-    totalRounds: number;
+    rounds: number;
 };
 
 export default function StatsScreen() {
@@ -22,7 +22,7 @@ export default function StatsScreen() {
 
         setLoading(true);
         try {
-            const data = await getScoreStats(String(userId));
+            const data: ScoreStats = await getScoreStats(String(userId));
             setStats(data);
         } catch (e) {
             console.log("stats error", e);
@@ -70,12 +70,12 @@ export default function StatsScreen() {
 
             {/* 基本統計カード */}
             <View style={styles.card}>
-                <Text style={styles.item}>総ラウンド数: {stats.totalRounds}</Text>
+                <Text style={styles.item}>総ラウンド数: {stats.rounds}</Text>
                 <Text style={styles.item}>
-                    平均スコア: {stats.averageScore.toFixed(2)}
+                    平均スコア: {stats.average.toFixed(2)}
                 </Text>
-                <Text style={styles.item}>最高スコア: {stats.maxScore}</Text>
-                <Text style={styles.item}>最低スコア: {stats.minScore}</Text>
+                <Text style={styles.item}>最高スコア: {stats.max}</Text>
+                <Text style={styles.item}>最低スコア: {stats.min}</Text>
             </View>
 
             {/* ホールごとの平均 */}

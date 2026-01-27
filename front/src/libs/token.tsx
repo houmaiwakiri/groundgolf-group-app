@@ -1,12 +1,20 @@
 import { fetchTimeout } from "../../src/libs/fetchTimeout";
 
+/**
+ * Expo の extra に入れている Cognito 設定の型定義。
+ */
 type ExpoExtra = {
     cognitoClientId: string;
     cognitoDomain: string;
     cognitoRedirectUri: string;
 };
 
-// Cognitoの認可コードをトークンに交換する非同期関数
+/**
+ * Cognito の認可コードをトークンに交換する関数。
+ * @param code 認可コード（ログイン後に取得する一時的なコード）
+ * @param extra Cognito の設定値（clientId / domain / redirectUri）
+ * @returns Cognito が返すトークン情報
+ */
 export async function exchangeCodeForToken(code: string, extra: ExpoExtra) {
     const tokenUrl = `https://${extra.cognitoDomain}/oauth2/token`;
 
@@ -19,7 +27,7 @@ export async function exchangeCodeForToken(code: string, extra: ExpoExtra) {
         redirect_uri: extra.cognitoRedirectUri,
     }).toString();
 
-    // リクエスト&レスポンス(非同期処理)
+    // リクエスト & レスポンス（非同期処理）
     const response = await fetchTimeout(tokenUrl, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },

@@ -7,11 +7,16 @@ import org.springframework.stereotype.Repository;
 
 import com.groundgolfgroupapp.entity.Score;
 
-// 既存機能(finfAll、saveなど)は、継承不要で使用できる
-// 独自の検索条件を使用したい場合などは、JPAを継承して定義する
-
+/**
+ * Score エンティティ用のリポジトリ。
+ * JpaRepository を継承することで、findAll/save などの基本機能が利用できます。
+ */
 @Repository
-// JPAのインターフェイスで、spring bootが実装するため、returnは不要
 public interface ScoreRepository extends JpaRepository<Score, Long> {
-    List<Score> findByUserId(String userId);// ユーザー単位でスコア取得する
+    /**
+     * ユーザーIDでスコアを検索します。
+     * @param userId ユーザーID
+     * @return 該当ユーザーのスコア一覧
+     */
+    List<Score> findByUserId(String userId);
 }

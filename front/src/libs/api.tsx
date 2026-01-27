@@ -3,18 +3,26 @@ import { fetchTimeout } from "./fetchTimeout";
 
 type ExpoExtra = { apiBaseUrl: string };
 const extra = Constants.expoConfig?.extra as ExpoExtra;
+// 環境設定からAPIのベースURLを取得する。
 const BASE_URL = extra.apiBaseUrl;
 
 export type Score = {
+    // スコアID(サーバーで採番される)
     id: number;
+    // ホール順に並んだ打数リスト
     strokes: number[];
 };
 
 type ScoreStats = {
+    // 1ラウンドあたりの平均打数
     average: number;
+    // 合計打数の最大値
     max: number;
+    // 合計打数の最小値
     min: number;
+    // ホールごとの平均打数
     holeAverages: number[];
+    // 集計対象のラウンド数
     rounds: number;
 };
 

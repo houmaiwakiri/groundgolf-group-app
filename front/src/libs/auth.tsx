@@ -3,8 +3,11 @@ import * as SecureStore from "expo-secure-store";
 import { getUserIdFromToken } from "./jwtUtils";
 
 type Tokens = {
+    // APIアクセスに使うアクセストークン
     access_token: string;
+    // ユーザー情報が入ったIDトークン
     id_token: string;
+    // 更新用のリフレッシュトークン(任意)
     refresh_token?: string;
 };
 
@@ -27,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         (async () => {
             try {
+                // 端末の安全な領域からトークンを読み込む
                 const access = await SecureStore.getItemAsync("access_token");
                 const id = await SecureStore.getItemAsync("id_token");
                 const refresh = await SecureStore.getItemAsync("refresh_token");

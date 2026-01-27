@@ -11,7 +11,7 @@ export function getUserIdFromToken(token: string): string | null {
 
         const payload = parts[1];
 
-        // Base64 デコード
+        // Base64 デコード(JWTはURLセーフ文字なので置換してからデコード)
         const decodedPayload = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
 
         // JSON パース

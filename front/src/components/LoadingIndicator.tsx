@@ -3,6 +3,7 @@ import { View, ActivityIndicator } from "react-native";
 
 export default function LoadingIndicator() {
     return (
+        // 画面中央にローディングアイコンを配置する
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
             <ActivityIndicator size="large" color="#007aff" />
         </View>

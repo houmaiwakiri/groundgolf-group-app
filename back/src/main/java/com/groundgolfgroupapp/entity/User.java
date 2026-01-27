@@ -9,9 +9,12 @@ import jakarta.persistence.Table;
 public class User {
 
     @Id
+    // ユーザーID(アプリ側で決める一意な文字列)
     private String id;
 
+    // 表示名として使うユーザー名。
     private String username;
+    // 連絡先として保存するメールアドレス。
     private String email;
 
     public User() {}

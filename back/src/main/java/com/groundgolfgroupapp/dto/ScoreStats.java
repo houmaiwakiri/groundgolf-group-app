@@ -3,10 +3,15 @@ package com.groundgolfgroupapp.dto;
 import java.util.List;
 
 public class ScoreStats {
+    // 1ラウンドあたりの平均打数。
     private double average;
+    // ラウンド合計打数の最大値。
     private int max;
+    // ラウンド合計打数の最小値。
     private int min;
+    // ホールごとの平均打数。index=ホール番号-1。
     private List<Double> holeAverages;
+    // 集計対象のラウンド数。
     private int rounds;
 
     // デフォルトコンストラクタ

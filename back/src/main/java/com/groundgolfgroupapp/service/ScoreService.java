@@ -32,10 +32,12 @@ public class ScoreService {
     }
 
     public List<Score> getScoresByUser(String userId) {
+        // 指定したユーザーIDに紐づくスコア一覧を取得する。
         return scoreRepository.findByUserId(userId);
     }
 
     public Score registerScore(List<Integer> strokes, String userId) {
+        // strokesは各ホールの打数リスト。例: [3, 4, 2, ...]
 
         // ユーザーがいれば取得、いなければ作成
         User user = userRepository.findById(userId)

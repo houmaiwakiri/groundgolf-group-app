@@ -17,14 +17,17 @@ public class Score {
 
     @Id // 主キー
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 自動採番
+    // DB側で自動的に採番されるスコアID。
     private Long id;
 
     // 自動でリストをテーブルとして扱う宣言
     // score_strokesというテーブルが自動で作成される
     @ElementCollection
+    // 1ラウンド分の打数一覧(順番はホール順)。
     private List<Integer> strokes;
 
     @ManyToOne
+    // スコアは1人のユーザーに紐づく(多対一)。
     @JoinColumn(name = "user_id")
     private User user;
 

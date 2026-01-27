@@ -16,6 +16,7 @@ public class S3Config {
     // テスト用
     @Bean
     public S3Client s3client() {
+        // ローカルのMinIOに接続するためのS3クライアントを生成する。
         return S3Client.builder()
                 .endpointOverride(URI.create("http://minio:9000"))
                 .credentialsProvider(

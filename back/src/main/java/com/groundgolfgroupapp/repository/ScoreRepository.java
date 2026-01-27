@@ -13,5 +13,7 @@ import com.groundgolfgroupapp.entity.Score;
 @Repository
 // JPAのインターフェイスで、spring bootが実装するため、returnは不要
 public interface ScoreRepository extends JpaRepository<Score, Long> {
-    List<Score> findByUserId(String userId);// ユーザー単位でスコア取得する
+    // user_idでスコアを検索するためのメソッド。
+    // メソッド名の規約により、Spring Data JPAが自動的にSQLを生成する。
+    List<Score> findByUserId(String userId); // ユーザー単位でスコア取得する
 }
